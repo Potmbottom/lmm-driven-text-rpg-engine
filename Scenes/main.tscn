@@ -1,0 +1,101 @@
+[gd_scene load_steps=10 format=3 uid="uid://crcdespa6wi37"]
+
+[ext_resource type="Script" uid="uid://cirxdjo512v6n" path="res://Scripts/UI/GameUI.cs" id="1_8gbba"]
+[ext_resource type="Script" uid="uid://msc21lun32fm" path="res://Scripts/Core/ToolController.cs" id="2_jjvhh"]
+[ext_resource type="Script" uid="uid://ddtpoe0f80v60" path="res://Scripts/Tools/LocationGeneratorTool.cs" id="3_6bp64"]
+[ext_resource type="Script" uid="uid://ffsmwnybv3ug" path="res://Scripts/Core/InputHandler.cs" id="3_kry3j"]
+[ext_resource type="Script" uid="uid://cjrt2ospo02gv" path="res://Scripts/Tools/FinalTool.cs" id="4_344ge"]
+[ext_resource type="Script" uid="uid://bkma06uorp2dj" path="res://Scripts/AI/PromptLibrary.cs" id="4_jjvhh"]
+[ext_resource type="Script" uid="uid://bvsoturpmtqfp" path="res://Scripts/Tools/SimulationTool.cs" id="5_344ge"]
+[ext_resource type="Script" uid="uid://bvkeguwkf8loy" path="res://Scripts/Core/MapGenerator.cs" id="5_kry3j"]
+[ext_resource type="Script" uid="uid://h6loyno4fixh" path="res://Scripts/Tools/QueryTool.cs" id="6_ynf5e"]
+
+[node name="GameRoot" type="Control" node_paths=PackedStringArray("Controller", "InputHandler", "_chatHistory", "_inputField", "_sendButton", "_scrollContainer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8gbba")
+Controller = NodePath("ToolController")
+InputHandler = NodePath("InputHandler")
+_chatHistory = NodePath("MarginContainer/MainVBox/ChatScroll/ChatContent")
+_inputField = NodePath("MarginContainer/MainVBox/InputRow/TextEdit")
+_sendButton = NodePath("MarginContainer/MainVBox/InputRow/SendBtn")
+_scrollContainer = NodePath("MarginContainer/MainVBox/ChatScroll")
+
+[node name="ToolController" type="Node" parent="." node_paths=PackedStringArray("RegisteredToolsNodes")]
+script = ExtResource("2_jjvhh")
+RegisteredToolsNodes = [NodePath("LocationGeneration"), NodePath("FinalTool"), NodePath("Simulation"), NodePath("Query")]
+
+[node name="LocationGeneration" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen")]
+script = ExtResource("3_6bp64")
+MapGen = NodePath("../../MapGenerator")
+
+[node name="FinalTool" type="Node" parent="ToolController"]
+script = ExtResource("4_344ge")
+
+[node name="Simulation" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen", "LocationGeneratorTool", "QueryTool")]
+script = ExtResource("5_344ge")
+MapGen = NodePath("../../MapGenerator")
+LocationGeneratorTool = NodePath("../LocationGeneration")
+QueryTool = NodePath("../Query")
+
+[node name="Query" type="Node" parent="ToolController"]
+script = ExtResource("6_ynf5e")
+
+[node name="InputHandler" type="Node" parent="." node_paths=PackedStringArray("Controller", "MapGen")]
+script = ExtResource("3_kry3j")
+Controller = NodePath("../ToolController")
+MapGen = NodePath("../MapGenerator")
+
+[node name="PromptsLibrary" type="Node" parent="."]
+script = ExtResource("4_jjvhh")
+
+[node name="MapGenerator" type="Node" parent="." node_paths=PackedStringArray("TargetViewport", "ViewportRoot")]
+script = ExtResource("5_kry3j")
+TargetViewport = NodePath("SubViewport")
+ViewportRoot = NodePath("SubViewport/Control")
+
+[node name="SubViewport" type="SubViewport" parent="MapGenerator"]
+
+[node name="Control" type="Control" parent="MapGenerator/SubViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainVBox" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="ChatScroll" type="ScrollContainer" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ChatContent" type="VBoxContainer" parent="MarginContainer/MainVBox/ChatScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="InputRow" type="HBoxContainer" parent="MarginContainer/MainVBox"]
+layout_mode = 2
+
+[node name="TextEdit" type="TextEdit" parent="MarginContainer/MainVBox/InputRow"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SendBtn" type="Button" parent="MarginContainer/MainVBox/InputRow"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2

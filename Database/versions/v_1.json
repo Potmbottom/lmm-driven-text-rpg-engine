@@ -1,0 +1,630 @@
+{
+  "version_id": 1,
+  "timestamp": "day 1, 09:00",
+  "changes": {
+    "mutable": {
+      "locations": [
+        {
+          "id": 1,
+          "description": "A cozy, timber-framed tavern filled with the warm scent of roasted meat and ale.",
+          "groups": [
+            {
+              "Description": "A spacious main hall with heavy wooden tables and benches arranged in the center. A stone hearth warms the western wall, where two visitors sit enjoying their drinks.",
+              "CellIndices": [
+                "-3:-3:0",
+                "-2:-3:0",
+                "-1:-3:0",
+                "0:-3:0",
+                "1:-3:0",
+                "2:-3:0",
+                "-3:-2:0",
+                "-2:-2:0",
+                "-1:-2:0",
+                "0:-2:0",
+                "1:-2:0",
+                "2:-2:0",
+                "-3:-1:0",
+                "-2:-1:0",
+                "-1:-1:0",
+                "0:-1:0",
+                "1:-1:0",
+                "2:-1:0",
+                "-3:0:0",
+                "-2:0:0",
+                "-1:0:0",
+                "0:0:0",
+                "1:0:0",
+                "2:0:0",
+                "-3:1:0",
+                "-2:1:0",
+                "-1:1:0",
+                "0:1:0",
+                "1:1:0",
+                "2:1:0",
+                "-3:2:0",
+                "-2:2:0",
+                "-1:2:0",
+                "0:2:0",
+                "1:2:0",
+                "2:2:0"
+              ]
+            },
+            {
+              "Description": "A compact kitchen area cluttered with hanging pots and shelves of ingredients. A cook works busily near a hot stove positioned in the corner.",
+              "CellIndices": [
+                "3:-1:0",
+                "4:-1:0",
+                "3:0:0",
+                "4:0:0"
+              ]
+            },
+            {
+              "Description": "A quiet bedroom featuring a simple bed against the northern wall and a small table near the door. A maid tends to a wooden bathtub placed in the corner.",
+              "CellIndices": [
+                "-1:3:0",
+                "0:3:0",
+                "1:3:0",
+                "-1:4:0",
+                "0:4:0",
+                "1:4:0",
+                "-1:5:0",
+                "0:5:0",
+                "1:5:0"
+              ]
+            }
+          ],
+          "CellIndices": [
+            "-3:-3:0",
+            "-2:-3:0",
+            "-1:-3:0",
+            "0:-3:0",
+            "1:-3:0",
+            "2:-3:0",
+            "-3:-2:0",
+            "-2:-2:0",
+            "-1:-2:0",
+            "0:-2:0",
+            "1:-2:0",
+            "2:-2:0",
+            "-3:-1:0",
+            "-2:-1:0",
+            "-1:-1:0",
+            "0:-1:0",
+            "1:-1:0",
+            "2:-1:0",
+            "-3:0:0",
+            "-2:0:0",
+            "-1:0:0",
+            "0:0:0",
+            "1:0:0",
+            "2:0:0",
+            "-3:1:0",
+            "-2:1:0",
+            "-1:1:0",
+            "0:1:0",
+            "1:1:0",
+            "2:1:0",
+            "-3:2:0",
+            "-2:2:0",
+            "-1:2:0",
+            "0:2:0",
+            "1:2:0",
+            "2:2:0",
+            "3:-1:0",
+            "4:-1:0",
+            "3:0:0",
+            "4:0:0",
+            "-1:3:0",
+            "0:3:0",
+            "1:3:0",
+            "-1:4:0",
+            "0:4:0",
+            "1:4:0",
+            "-1:5:0",
+            "0:5:0",
+            "1:5:0"
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "index": "-3:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:-3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-3:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:-2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-3:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-3:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-3:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-3:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-2:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "2:2:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "3:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "4:-1:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "3:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "4:0:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:3:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:4:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:4:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:4:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "-1:5:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "0:5:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        },
+        {
+          "index": "1:5:0",
+          "links": [],
+          "last_update_time": "day 1, 09:00"
+        }
+      ],
+      "objects": [
+        {
+          "id": 2,
+          "cell_indices": [
+            "-3:0:0",
+            "-3:-1:0"
+          ],
+          "history": [
+            "A large stone hearth built into the western wall, containing glowing embers and radiating heat."
+          ]
+        },
+        {
+          "id": 3,
+          "cell_indices": [
+            "0:0:0",
+            "1:0:0"
+          ],
+          "history": [
+            "A heavy oak table, stained dark from years of spilled ale and grease."
+          ]
+        },
+        {
+          "id": 4,
+          "cell_indices": [
+            "0:-1:0",
+            "1:-1:0"
+          ],
+          "history": [
+            "A sturdy wooden bench with a polished seat."
+          ]
+        },
+        {
+          "id": 5,
+          "cell_indices": [
+            "-1:0:0"
+          ],
+          "history": [
+            "A human male visitor, 182cm, 85kg. Broad shoulders, weathered skin, and a short beard. Genitals consist of a flaccid, uncircumcised penis and a hairy scrotum."
+          ]
+        },
+        {
+          "id": 6,
+          "parent_object_id": 5,
+          "cell_indices": [],
+          "history": [
+            "A rough linen tunic, dyed a faded green."
+          ]
+        },
+        {
+          "id": 7,
+          "parent_object_id": 5,
+          "cell_indices": [],
+          "history": [
+            "Brown woolen trousers, patched at the knees."
+          ]
+        },
+        {
+          "id": 8,
+          "parent_object_id": 5,
+          "cell_indices": [],
+          "history": [
+            "A ceramic mug filled with frothy ale."
+          ]
+        },
+        {
+          "id": 9,
+          "cell_indices": [
+            "-1:-1:0"
+          ],
+          "history": [
+            "A human female visitor, 165cm, 60kg. Slender build with long brown hair. Breasts are small and perky with pale areolas; vulva is neat with trimmed hair."
+          ]
+        },
+        {
+          "id": 10,
+          "parent_object_id": 9,
+          "cell_indices": [],
+          "history": [
+            "A simple grey wool dress with long sleeves."
+          ]
+        },
+        {
+          "id": 11,
+          "parent_object_id": 9,
+          "cell_indices": [],
+          "history": [
+            "A pair of worn leather shoes."
+          ]
+        },
+        {
+          "id": 12,
+          "parent_object_id": 9,
+          "cell_indices": [],
+          "history": [
+            "A glass goblet half-filled with red wine."
+          ]
+        },
+        {
+          "id": 13,
+          "cell_indices": [
+            "4:-1:0"
+          ],
+          "history": [
+            "A black iron stove, radiating intense heat from a coal fire within."
+          ]
+        },
+        {
+          "id": 14,
+          "cell_indices": [
+            "4:0:0"
+          ],
+          "history": [
+            "A tall wooden shelving unit cluttered with kitchen supplies."
+          ]
+        },
+        {
+          "id": 15,
+          "parent_object_id": 14,
+          "cell_indices": [],
+          "history": [
+            "A large copper pot with a dented bottom."
+          ]
+        },
+        {
+          "id": 16,
+          "parent_object_id": 14,
+          "cell_indices": [],
+          "history": [
+            "A cast iron skillet hanging from a hook."
+          ]
+        },
+        {
+          "id": 17,
+          "parent_object_id": 14,
+          "cell_indices": [],
+          "history": [
+            "A burlap sack containing white flour."
+          ]
+        },
+        {
+          "id": 18,
+          "parent_object_id": 14,
+          "cell_indices": [],
+          "history": [
+            "A glass jar filled with dried herbs."
+          ]
+        },
+        {
+          "id": 19,
+          "cell_indices": [
+            "3:0:0"
+          ],
+          "history": [
+            "A human male cook, 170cm, 95kg. Heavy set with a round belly and bald head. Genitals consist of a small penis partially obscured by pubic fat and a loose scrotum."
+          ]
+        },
+        {
+          "id": 20,
+          "parent_object_id": 19,
+          "cell_indices": [],
+          "history": [
+            "A white apron stained with grease and sauce."
+          ]
+        },
+        {
+          "id": 21,
+          "parent_object_id": 19,
+          "cell_indices": [],
+          "history": [
+            "A sweat-stained linen shirt."
+          ]
+        },
+        {
+          "id": 22,
+          "parent_object_id": 19,
+          "cell_indices": [],
+          "history": [
+            "A large wooden stirring spoon."
+          ]
+        },
+        {
+          "id": 23,
+          "cell_indices": [
+            "0:5:0",
+            "1:5:0"
+          ],
+          "history": [
+            "A simple wooden bed frame with a straw mattress and wool blanket."
+          ]
+        },
+        {
+          "id": 24,
+          "cell_indices": [
+            "-1:3:0"
+          ],
+          "history": [
+            "A small bedside table made of pine."
+          ]
+        },
+        {
+          "id": 25,
+          "cell_indices": [
+            "1:3:0"
+          ],
+          "history": [
+            "A round wooden bathtub bound with iron hoops, currently empty."
+          ]
+        },
+        {
+          "id": 26,
+          "cell_indices": [
+            "0:3:0"
+          ],
+          "history": [
+            "A human female maid, 160cm, 55kg. Petite build with curly black hair. Breasts are full and soft with dark nipples; vulva is plump and covered in thick dark hair."
+          ]
+        },
+        {
+          "id": 27,
+          "parent_object_id": 26,
+          "cell_indices": [],
+          "history": [
+            "A modest servant\u0027s dress made of rough brown fabric."
+          ]
+        },
+        {
+          "id": 28,
+          "parent_object_id": 26,
+          "cell_indices": [],
+          "history": [
+            "A white linen cap covering the hair."
+          ]
+        },
+        {
+          "id": 29,
+          "parent_object_id": 26,
+          "cell_indices": [],
+          "history": [
+            "A rough cloth rag used for cleaning."
+          ]
+        }
+      ]
+    },
+    "immutable": {
+      "text": {
+        "Text": "Location created: A cozy, timber-framed tavern filled with the warm scent of roasted meat and ale.",
+        "Locations": [
+          1
+        ],
+        "SimulationLog": []
+      }
+    },
+    "temporary": {}
+  }
+}

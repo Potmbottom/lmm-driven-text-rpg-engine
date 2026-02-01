@@ -1,0 +1,17 @@
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\LMM-Driven Text RPG Engine.deps.json
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\LMM-Driven Text RPG Engine.runtimeconfig.json
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\LMM-Driven Text RPG Engine.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\LMM-Driven Text RPG Engine.pdb
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\GodotSharp.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\bin\Debug\GodotSharpEditor.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.csproj.AssemblyReference.cache
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.AssemblyInfoInputs.cache
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.AssemblyInfo.cs
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.csproj.CoreCompileInputs.cache
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\refint\LMM-Driven Text RPG Engine.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.pdb
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.genruntimeconfig.cache
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\ref\LMM-Driven Text RPG Engine.dll
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driv.D254D332.Up2Date

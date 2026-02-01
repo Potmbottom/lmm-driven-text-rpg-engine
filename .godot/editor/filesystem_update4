@@ -1,0 +1,16 @@
+res://Scripts/AI/PromptLibrary.cs
+res://Scripts/UI/GameUI.cs
+res://Scripts/Core/ToolController.cs
+res://Scripts/Tools/LocationGeneratorTool.cs
+res://Scripts/Core/InputHandler.cs
+res://Scripts/Tools/SimulationTool.cs
+res://Scripts/AI/LmmFactory.cs
+res://Scripts/Core/StateManager.cs
+res://Scripts/Core/MapGenerator.cs
+res://Scripts/Core/VectorDatabase.cs
+res://Scripts/Tools/QueryTool.cs
+res://Scenes/main.tscn
+res://Prompts/Translator.txt
+res://Prompts/ObjectsGeneration.txt
+res://Prompts/QueryOrchestrator.txt
+res://Prompts/Simulation.txt

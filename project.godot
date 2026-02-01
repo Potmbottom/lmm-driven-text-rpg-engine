@@ -1,0 +1,31 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="LMM-Driven Text RPG Engine"
+run/main_scene="uid://crcdespa6wi37"
+config/features=PackedStringArray("4.5", "C#", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+PromptLibrary="*res://Scripts/AI/PromptLibrary.cs"
+LmmFactory="*res://Scripts/AI/LmmFactory.cs"
+VectorDatabase="*res://Scripts/Core/VectorDatabase.cs"
+StateManager="*res://Scripts/Core/StateManager.cs"
+
+[dotnet]
+
+project/assembly_name="LMM-Driven Text RPG Engine"
+
+[rendering]
+
+renderer/rendering_method="mobile"
