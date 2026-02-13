@@ -172,7 +172,7 @@ namespace RPG.Core
 
                     float sim = CosineSimilarity(queryVector, kvp.Value);
                     string fullContent = FormatLocationText(loc);
-                    string time = GetLocationTime(loc, world);
+                    string time = loc.LastUpdateTime;
 
                     results.Add(new VectorSearchResult
                     {
@@ -256,13 +256,6 @@ namespace RPG.Core
             return $"[Object ID: {obj.Id}] History: {hist}";
         }
 
-        private string GetLocationTime(LocationData loc, WorldState world)
-        {
-            if (loc.CellIndices == null || loc.CellIndices.Count == 0) return "day 1, 00:00";
-            var cell = world.Cells.FirstOrDefault(c => c.Index == loc.CellIndices[0]);
-            return cell?.LastUpdateTime ?? "day 1, 00:00";
-        }
-
         private string GetObjectTimeRecursive(ObjectData obj, WorldState world)
         {
             return "day 1, 00:00"; // Placeholder implementation as in source
@@ -275,10 +268,10 @@ namespace RPG.Core
 
         private float CalculateHybridScore(float similarity, string itemTime, string worldTime)
         {
-            long tItem = TimeHelper.ParseToMinutes(itemTime);
-            long tWorld = TimeHelper.ParseToMinutes(worldTime);
+            long tItem = TimeHelper.ParseToSeconds(itemTime);
+            long tWorld = TimeHelper.ParseToSeconds(worldTime);
             long diff = Math.Abs(tWorld - tItem);
-            const float MAX_DIFF_MINUTES = 4320f;
+            const float MAX_DIFF_MINUTES = 259200;
             float timeFactor = 1.0f - Math.Clamp(diff / MAX_DIFF_MINUTES, 0f, 1f);
             return (similarity * 0.7f) + (timeFactor * 0.3f);
         }

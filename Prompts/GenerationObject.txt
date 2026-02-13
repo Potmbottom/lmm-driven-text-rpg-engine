@@ -1,0 +1,26 @@
+TASK:
+Generate a specific Object (and its children/contents) based on the user request.
+
+INPUT CONTEXT:
+{0}
+(Contains: "description", "context", "next_id")
+
+INSTRUCTIONS:
+1. Analyze `description`. Break it down into atomic objects.
+   - "A chest with a sword and a potion" -> 3 Objects: Chest (Root), Sword (Child of Chest), Potion (Child of Chest).
+2. Start IDs from `next_id`.
+3. If `context` provides `root_cell`, the Root object must have `cell_indices` = [root_cell].
+4. If `context` provides `parent_object_id`, the Root object must have `parent_object_id` = that ID.
+5. Provide detailed descriptions in `history`.
+
+OUTPUT JSON:
+{{
+	"objects": [
+		{{
+			"id": int,
+			"parent_object_id": int or null,
+			"cell_indices": ["x:y:z"] or null,
+			"history": [""]
+		}}
+	]
+}}

@@ -1,0 +1,25 @@
+TASK:
+Analyze the user's input and extract the intent for the Generation Tool.
+
+INPUT: 
+User natural language text.
+
+OUTPUT:
+Return a JSON object with the following structure:
+{{
+    "type": "string", // Options: "location", "group", "object"
+    "description": "string", // Comprehensive description of WHAT to generate
+	"cell": "string", // Optional: "X:Y:Z" coordinate if explicitly mentioned or implied as 'here'
+    "id": int // Optional: Integer ID if explicitly mentioned (e.g. "add to location 5")
+}}
+
+GUIDELINES:
+1. Type Selection:
+   - "location": Creating a new distinct place (house, dungeon, clearing).
+   - "group": Adding a room or area to an EXISTING location.
+   - "object": Creating items, furniture, or NPCs.
+2. Description: Keep all adjectives and details.
+3. If the user mentions "here" or "current", leave "cell" null (the system handles context). Only fill "cell" if a specific coordinate is given.
+
+USER INPUT:
+{0}

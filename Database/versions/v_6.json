@@ -1,0 +1,226 @@
+{
+  "version_id": 6,
+  "timestamp": "day 1, 06:19:00",
+  "changes": {
+    "mutable": {
+      "locations": [
+        {
+          "id": 29,
+          "description": "A large, empty 10x10 meter clearing starting from the anchor point, extending away from the occupied zone.",
+          "groups": [
+            {
+              "description": "A Forest clearing occupies the entire space, serving as the base for the other objects. A Granite boulder is positioned in the center-left area, with a River pebble resting on top of it. A patch of Wild lavender is located in the northern section, while an Oak stump is situated in the southeastern part of the clearing.",
+              "cell_indices": [
+                "-5:-12:0",
+                "-4:-12:0",
+                "-3:-12:0",
+                "-2:-12:0",
+                "-1:-12:0",
+                "0:-12:0",
+                "1:-12:0",
+                "2:-12:0",
+                "3:-12:0",
+                "4:-12:0",
+                "-5:-13:0",
+                "-4:-13:0",
+                "-3:-13:0",
+                "-2:-13:0",
+                "-1:-13:0",
+                "0:-13:0",
+                "1:-13:0",
+                "2:-13:0",
+                "3:-13:0",
+                "4:-13:0",
+                "-5:-14:0",
+                "-4:-14:0",
+                "-3:-14:0",
+                "-2:-14:0",
+                "-1:-14:0",
+                "0:-14:0",
+                "1:-14:0",
+                "2:-14:0",
+                "3:-14:0",
+                "4:-14:0",
+                "-5:-15:0",
+                "-4:-15:0",
+                "-3:-15:0",
+                "-2:-15:0",
+                "-1:-15:0",
+                "0:-15:0",
+                "1:-15:0",
+                "2:-15:0",
+                "3:-15:0",
+                "4:-15:0",
+                "-5:-16:0",
+                "-4:-16:0",
+                "-3:-16:0",
+                "-2:-16:0",
+                "-1:-16:0",
+                "0:-16:0",
+                "1:-16:0",
+                "2:-16:0",
+                "3:-16:0",
+                "4:-16:0",
+                "-5:-17:0",
+                "-4:-17:0",
+                "-3:-17:0",
+                "-2:-17:0",
+                "-1:-17:0",
+                "0:-17:0",
+                "1:-17:0",
+                "2:-17:0",
+                "3:-17:0",
+                "4:-17:0",
+                "-5:-18:0",
+                "-4:-18:0",
+                "-3:-18:0",
+                "-2:-18:0",
+                "-1:-18:0",
+                "0:-18:0",
+                "1:-18:0",
+                "2:-18:0",
+                "3:-18:0",
+                "4:-18:0",
+                "-5:-19:0",
+                "-4:-19:0",
+                "-3:-19:0",
+                "-2:-19:0",
+                "-1:-19:0",
+                "0:-19:0",
+                "1:-19:0",
+                "2:-19:0",
+                "3:-19:0",
+                "4:-19:0",
+                "-5:-20:0",
+                "-4:-20:0",
+                "-3:-20:0",
+                "-2:-20:0",
+                "-1:-20:0",
+                "0:-20:0",
+                "1:-20:0",
+                "2:-20:0",
+                "3:-20:0",
+                "4:-20:0",
+                "-5:-21:0",
+                "-4:-21:0",
+                "-3:-21:0",
+                "-2:-21:0",
+                "-1:-21:0",
+                "0:-21:0",
+                "1:-21:0",
+                "2:-21:0",
+                "3:-21:0",
+                "4:-21:0"
+              ]
+            }
+          ],
+          "last_update_time": "day 1, 12:19:00"
+        }
+      ],
+      "objects": [
+        {
+          "id": 8,
+          "cell_indices": [
+            "-1:-15:0"
+          ],
+          "history": [
+            "Name: Maza. Race: Orc. Gender: Female. Height: 178cm. Weight: 82kg. Build: Athletic and lean. Distinctive Features: Pale green skin, yellow eyes, two small tusks protruding from her lower lip, and black hair tied in a high ponytail.",
+            "Moved to the western wall to access the quiver.",
+            "Retrieved the bundle of arrows (ID 17) from the quiver to use the flint heads.",
+            "Approached the central stone fireplace.",
+            "Gathered dried moss from the walls to serve as tinder.",
+            "Prepared the fire lay in the fireplace.",
+            "Attempted to ignite the tinder by striking a flint arrowhead against the fireplace stones.",
+            "Successfully ignited the dried moss with sparks from the flint arrowhead. Blew gently on the embers until a small flame took hold.",
+            "Sat before the fire for a while, warming up and watching the flames dance.",
+            "Stood up from the warmth of the hearth and walked to the center of the cabin.",
+            "Approached the heavy wooden door on the southern wall, preparing to exit onto the road.",
+            "Opened the cabin door and stepped out onto the dirt road (Location 23), the morning air greeting her.",
+            "Walked south along the dirt path, passing the small stone cairn (ID 21).",
+            "Continued southward, carefully stepping around the rusted animal trap (ID 22) buried near the end of the road.",
+            "Stepped off the road and entered the large, empty hunting glade (Location 29), scanning the open space.",
+            "Moved stealthily toward the moss-covered granite boulder (ID 25), crouching low in the tall wild grass to conceal her silhouette.",
+            "Maintained a silent vigil for several hours. The morning fog lifted, and the sun began to warm the clearing, but the forest remained quiet.",
+            "Wait concluded as the sun reached its zenith. Despite the long ambush, no game entered the clearing."
+          ]
+        }
+      ]
+    },
+    "immutable": {
+      "text": {
+        "Text": "Maza moved with practiced silence across the packed earth of the clearing, her dark deerskin leathers making no sound against the ground. She approached the massive, moss-covered granite boulder that anchored the glade, crouching low until the tall wild grass swallowed her silhouette. Pressing close to the weathered stone, she became motionless, letting her form blend seamlessly into the shadows of the rock.\n\nHours drifted by in a stillness broken only by the wind. The lingering morning fog slowly evaporated, revealing the stark, grey edges of the distant oak stump. As the sun climbed higher, warming the air and the stone behind her, Maza remained a statue, her yellow eyes scanning the tree line. Yet, the forest held its breath; no game ventured near the patch of wild lavender or the open grass.\n\nWhen the sun finally reached its zenith, casting short shadows across the glade, Maza accepted the hunt was fruitless. With a quiet sigh that barely stirred the air, she lowered her recurve bow and rose from her crouch, stretching limbs stiffened by the long, silent vigil.",
+        "Locations": [
+          29
+        ],
+        "SimulationLog": [
+          {
+            "structured": [
+              {
+                "actions": [
+                  {
+                    "type": "move_cell",
+                    "action": {
+                      "set_id": "-1:-15:0",
+                      "object_id": 8
+                    }
+                  },
+                  {
+                    "type": "expand_history",
+                    "action": {
+                      "object_id": 8,
+                      "new_text": "Moved stealthily toward the moss-covered granite boulder (ID 25), crouching low in the tall wild grass to conceal her silhouette."
+                    }
+                  },
+                  {
+                    "type": "emit",
+                    "action": {
+                      "object_id": 8,
+                      "radius": "local",
+                      "description": "Maza becomes motionless, blending into the shadows of the boulder."
+                    }
+                  }
+                ],
+                "time": "day 1, 06:22:00"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "expand_history",
+                    "action": {
+                      "object_id": 8,
+                      "new_text": "Maintained a silent vigil for several hours. The morning fog lifted, and the sun began to warm the clearing, but the forest remained quiet."
+                    }
+                  }
+                ],
+                "time": "day 1, 09:00:00"
+              },
+              {
+                "actions": [
+                  {
+                    "type": "expand_history",
+                    "action": {
+                      "object_id": 8,
+                      "new_text": "Wait concluded as the sun reached its zenith. Despite the long ambush, no game entered the clearing."
+                    }
+                  },
+                  {
+                    "type": "emit",
+                    "action": {
+                      "object_id": 8,
+                      "radius": "self",
+                      "description": "Lowers the bow with a quiet sigh, stretching stiff limbs."
+                    }
+                  }
+                ],
+                "time": "day 1, 12:19:00"
+              }
+            ],
+            "break_point": "Time",
+            "break_description": "Time limit reached"
+          }
+        ]
+      }
+    },
+    "temporary": {}
+  }
+}

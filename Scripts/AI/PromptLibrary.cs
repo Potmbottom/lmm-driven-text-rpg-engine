@@ -6,17 +6,27 @@ namespace RPG.AI
 {
     public enum PromptType
     {
-        NextTool, // Выбор инструмента
-        LocationGeneration, // Структура локации: {0}=IndicesJson, {1}=NextId, {2}=UserRequest
-        ObjectsGeneration, // Наполнение объектами: {0}=LocationJson, {1}=ContextJson
-        Simulation,
-        Narrative,
-        // --- NEW ---
+        NextTool,
+        
         QueryOrchestrator,
         QuerySelector,
         QueryFinalizer,
+        
+        Simulation,
         SimulationContext,
-        Translator
+        SimulationQueryParser,
+        
+        GenerationRules,
+        GenerationObject,
+        GenerationObjects,
+        GenerationGroup,
+        GenerationLocation,
+        GenerationQueryParser,
+        GenerationGroupDescription,
+        
+        Translator,
+        Narrative,
+        UnsafeNarrative
     }
 
     public partial class PromptLibrary : Node

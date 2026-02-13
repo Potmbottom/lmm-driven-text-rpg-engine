@@ -8,12 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using RPG.Core.Helpers;
 
 namespace RPG.Tools
 {
     public partial class QueryTool : Node, ITool
     {
-        public string ToolName => "QueryTool";
+        public string ToolName => "Query";
 
         public event Action<string> OnUpdate;
         public event Action<string> OnComplete;
@@ -41,7 +42,7 @@ namespace RPG.Tools
         // Состояние выполнения
         private List<string> _aggregatedHistory = new();
         private HashSet<int> _extractedEventIndices = new();
-        private const int MAX_STEPS = 15;
+        private const int MAX_STEPS = 5;
         
         public async void Call(string parameters)
         {
@@ -150,7 +151,7 @@ namespace RPG.Tools
 
                 case "get_location_by_cell":
                     string cellIndex = decision.Payload.Trim();
-                    var locByCell = world.Locations.FirstOrDefault(l => l.CellIndices.Contains(cellIndex));
+                    var locByCell = world.Locations.FirstOrDefault(l => l.GetCellIndices().Contains(cellIndex));
                     return locByCell != null ? JsonUtils.Serialize(locByCell) : $"Location with cell {cellIndex} not found.";
 
                 case "get_recent_events":
@@ -245,7 +246,7 @@ namespace RPG.Tools
         private List<int> GetObjectsInLocation(LocationData loc, WorldState world)
         {
             var allowedIds = new HashSet<int>();
-            var locCellIndices = new HashSet<string>(loc.CellIndices);
+            var locCellIndices = new HashSet<string>(loc.GetCellIndices());
 
             // 1. Находим корневые объекты, которые находятся в ячейках, принадлежащих локации
             foreach (var obj in world.Objects)
@@ -357,7 +358,7 @@ namespace RPG.Tools
                 Temperature = 0.5f
             };
 
-            return await LmmFactory.Instance.GetProvider(LmmModelType.Smart).GenerateAsync(request);
+            return await LmmFactory.Instance.GetProvider(LmmModelType.Fast).GenerateAsync(request);
         }
 
         private void ProcessFinalResult(string finalJson)

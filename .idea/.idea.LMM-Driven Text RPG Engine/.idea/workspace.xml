@@ -4,7 +4,75 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1616f288-24ec-4a7c-9b1d-2227304f1b47" name="Changes" comment="" />
+    <list default="true" id="1616f288-24ec-4a7c-9b1d-2227304f1b47" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Scripts/AI/Providers/LocalLmmProvider.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Scripts/Tools/GenerationTool.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Scripts/Tools/SimulationHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/editor_layout.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/editor_layout.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_update4" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/filesystem_update4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/main.tscn-editstate-2ddd04d543d5858e7f20c9299a8b5096.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/main.tscn-editstate-2ddd04d543d5858e7f20c9299a8b5096.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/project_metadata.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/project_metadata.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/quick_open_dialog_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/quick_open_dialog_cache.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/script_editor_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/script_editor_cache.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.ctex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.md5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.ctex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.md5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.ctex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.md5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/metadata/ide_messaging_meta.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/metadata/ide_messaging_meta.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/ref/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/ref/LMM-Driven Text RPG Engine.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/refint/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/refint/LMM-Driven Text RPG Engine.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.model.nuget.info" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.model.nuget.info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.restore.info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/uid_cache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/uid_cache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.LMM-Driven Text RPG Engine/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.LMM-Driven Text RPG Engine/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/snapshot.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/snapshot.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/vectors_cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/vectors_cache.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_1.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_2.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMM-Driven Text RPG Engine.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LMM-Driven Text RPG Engine.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/LocationGeneration.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/Narrative.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/Narrative.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/NextTool.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/NextTool.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/ObjectsGeneration.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/QueryOrchestrator.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/QueryOrchestrator.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/Simulation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/Simulation.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scenes/main.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/Scenes/main.tscn" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/AI/Core/ILmmProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/Core/ILmmProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/AI/LmmFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/LmmFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/AI/PromptLibrary.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/PromptLibrary.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/AI/Providers/GeminiProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/Providers/GeminiProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Commands/MapCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Commands/MapCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/MapGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/MapGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/StateManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/StateManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/TimeHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/TimeHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/ToolController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/ToolController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/VectorDatabase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/VectorDatabase.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/WorldStateHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/WorldStateHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Models/SimulationModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Models/SimulationModels.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Models/ToolModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Models/ToolModels.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Models/WorldModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Models/WorldModels.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/FinalTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/FinalTool.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/LocationGeneratorTool.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/LocationGeneratorTool.cs.uid" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/QueryTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/QueryTool.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/SimulationTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/SimulationTool.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/UI/GameUI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/UI/GameUI.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated_map.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated_map.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated_map_updated.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/generated_map_updated.png.import" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,12 +81,21 @@
   <component name="DpaMonitoringSettings">
     <option name="firstShow" value="false" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/AppData/Local/Temp/SourceGeneratedDocuments/3B14CDE529F5DE219C337B52/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/RPG.UI.GameUI_ScriptMethods.generated.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1c378f459c054fecaf4484a0fa6d44c055a800/07/f32fdde9/Rect2I.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1c378f459c054fecaf4484a0fa6d44c055a800/11/0d772626/Node.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1c378f459c054fecaf4484a0fa6d44c055a800/6a/b416d1ed/Control.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1c378f459c054fecaf4484a0fa6d44c055a800/db/dc790c56/GodotObject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d19995b60b2e43f9b6d2005a13b2d476ca708/a2/857a3503/TaskCompletionSource`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d19995b60b2e43f9b6d2005a13b2d476ca708/d9/0608eef9/Int64.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Scripts/Core/InputHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Scripts/Core/ToolController.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -34,6 +111,8 @@
     &quot;.NET Executable.Player.executor&quot;: &quot;Debug&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -126,13 +205,47 @@
       <workItem from="1769858248284" duration="7080000" />
       <workItem from="1769883495392" duration="4228000" />
       <workItem from="1769893887971" duration="6778000" />
-      <workItem from="1769935107591" duration="14130000" />
+      <workItem from="1769935107591" duration="19837000" />
+      <workItem from="1769983511023" duration="4431000" />
+      <workItem from="1770064620801" duration="3712000" />
+      <workItem from="1770111108754" duration="1582000" />
+      <workItem from="1770153605506" duration="6628000" />
+      <workItem from="1770196490363" duration="7032000" />
+      <workItem from="1770219530816" duration="1382000" />
+      <workItem from="1770221279869" duration="1276000" />
+      <workItem from="1770291380918" duration="4839000" />
+      <workItem from="1770304915643" duration="5777000" />
+      <workItem from="1770327079744" duration="1504000" />
+      <workItem from="1770329510658" duration="6265000" />
+      <workItem from="1770363519443" duration="1893000" />
+      <workItem from="1770369665649" duration="2815000" />
+      <workItem from="1770372669139" duration="10305000" />
+      <workItem from="1770413229496" duration="5601000" />
+      <workItem from="1770418889686" duration="942000" />
+      <workItem from="1770475143636" duration="745000" />
+      <workItem from="1770486680809" duration="11069000" />
+      <workItem from="1770499269367" duration="2350000" />
+      <workItem from="1770501925956" duration="1128000" />
+      <workItem from="1770543012739" duration="9847000" />
+      <workItem from="1770571145905" duration="7731000" />
+      <workItem from="1770632638480" duration="12195000" />
+      <workItem from="1770647748335" duration="6879000" />
+      <workItem from="1770671558272" duration="2315000" />
+      <workItem from="1770716824447" duration="4862000" />
+      <workItem from="1770755407902" duration="7571000" />
+      <workItem from="1770799282656" duration="11905000" />
+      <workItem from="1770817820757" duration="477000" />
+      <workItem from="1770827491053" duration="10441000" />
+      <workItem from="1770850432646" duration="2491000" />
+      <workItem from="1770887657120" duration="26980000" />
+      <workItem from="1770932914119" duration="9178000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
@@ -152,21 +265,15 @@
           <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
           <option name="timeStamp" value="3" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Scripts/Tools/LocationGeneratorTool.cs</url>
-          <line>269</line>
-          <properties documentPath="C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\Scripts\Tools\LocationGeneratorTool.cs" containingFunctionPresentation="Method 'GenerateObjectData'">
-            <startOffsets>
-              <option value="10638" />
-            </startOffsets>
-            <endOffsets>
-              <option value="10698" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="92" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Type#RPG.Models.LocationData" memberName="Groups" />
+        <PinnedItemInfo parentTag="Type#RPG.Models.ObjectData" memberName="History" />
+        <PinnedItemInfo parentTag="Type#RPG.Models.Simulation.SimulationAction" memberName="ActionData" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

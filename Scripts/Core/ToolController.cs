@@ -17,6 +17,9 @@ namespace RPG.Core
 
         [System.Text.Json.Serialization.JsonPropertyName("params")]
         public string Params { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("think")]
+        public string Think { get; set; }
     }
 
     public partial class ToolController : Node
@@ -24,7 +27,6 @@ namespace RPG.Core
         public event Action<string> OnUIUpdate;
         public event Action OnTurnComplete;
 
-        // Список инструментов теперь настраивается в редакторе или ищется в детях
         [Export] public Godot.Collections.Array<Node> RegisteredToolsNodes;
 
         private Dictionary<string, ITool> _tools = new();
@@ -38,17 +40,28 @@ namespace RPG.Core
             {
                 if (node is ITool tool) RegisterTool(tool);
             }
+
+            InitializeModel(LmmModelType.Fast);
+            InitializeModel(LmmModelType.Smart);
+            InitializeModel(LmmModelType.Local);
+
+            GD.Print("ToolController: AI Models initialized.");
+        }
+
+        private void InitializeModel(LmmModelType type)
+        {
+            var provider = LmmFactory.Instance.GetProvider(type);
+            if (provider != null)
+            {
+                provider.OnUpdate += (msg) => OnUIUpdate?.Invoke(msg);
+            }
         }
 
         private void RegisterTool(ITool tool)
         {
             if (_tools.ContainsKey(tool.ToolName)) return;
             _tools[tool.ToolName] = tool;
-
-            // Подписываемся сразу при регистрации, чтобы логи проходили всегда
             tool.OnUpdate += (msg) => OnUIUpdate?.Invoke(msg);
-
-            GD.Print($"Controller registered tool: {tool.ToolName}");
         }
 
         public void StartTurn(string userInput)
@@ -63,34 +76,28 @@ namespace RPG.Core
             _executionLog.Clear();
             _executionLog.Add(userInput);
 
-            ProcessNextStep();
+            ProcessStep();
         }
 
-        private async void ProcessNextStep()
+        // 1. Спрашиваем модель и 2. Получаем ToolRequest
+        private async void ProcessStep()
         {
-            string systemPrompt = PromptLibrary.Instance.GetPrompt(PromptType.NextTool, string.Join(Environment.NewLine, _executionLog));
             string contextStr = string.Join("\n---\n", _executionLog);
+            string systemPrompt = PromptLibrary.Instance.GetPrompt(PromptType.NextTool, contextStr);
 
             var request = new LmmRequest
             {
                 SystemInstruction = systemPrompt,
                 UserPrompt = contextStr,
-                Temperature = 0.0f
+                Temperature = 0.1f
             };
 
-            OnUIUpdate?.Invoke("⚙️...");
+            OnUIUpdate?.Invoke("⚙️ Selecting tool...");
 
             var provider = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
             string lmmResponseJson = await provider.GenerateAsync(request);
 
-            if (string.IsNullOrEmpty(lmmResponseJson))
-            {
-                OnUIUpdate?.Invoke("\n[Error] AI silent.");
-                OnTurnComplete?.Invoke();
-                return;
-            }
-
-            if (!JsonUtils.TryDeserialize<ToolRequest>(lmmResponseJson, out var toolRequest))
+            if (string.IsNullOrEmpty(lmmResponseJson) || !JsonUtils.TryDeserialize<ToolRequest>(lmmResponseJson, out var toolRequest))
             {
                 GD.PrintErr($"Failed to parse decision: {lmmResponseJson}");
                 OnTurnComplete?.Invoke();
@@ -98,31 +105,57 @@ namespace RPG.Core
             }
 
             OnUIUpdate?.Invoke($"Calling: {toolRequest.Tool}");
-            // OnUIUpdate?.Invoke($"Reason: {toolRequest.Params}"); // Можно раскомментировать, если нужно видеть параметры вызова
+            OnUIUpdate?.Invoke($"Reason: {toolRequest.Think}");
 
-            if (_tools.TryGetValue(toolRequest.Tool, out ITool tool))
+            ExecuteTool(toolRequest);
+        }
+
+        // 3. Выполняем выбранный инструмент
+        private void ExecuteTool(ToolRequest request)
+        {
+            if (_tools.TryGetValue(request.Tool, out ITool tool))
             {
-                Action<string> completeHandler = null;
-
-                // OnUpdate больше не трогаем здесь, он подписан в RegisterTool
-                completeHandler = (jsonResult) =>
+                Action<string> onComplete = null;
+                onComplete = (result) =>
                 {
-                    tool.OnComplete -= completeHandler;
-
-                    _executionLog.Add(jsonResult);
-
-                    if (toolRequest.Tool == "final_tool" || toolRequest.Tool == "LocationGeneration") OnTurnComplete?.Invoke();
-                    else ProcessNextStep();
+                    tool.OnComplete -= onComplete;
+                    _executionLog.Add(result);
+                    
+                    // 4. Сразу вызываем FinalTool с результатом предыдущего шага
+                    RunFinalTool(result);
                 };
 
-                tool.OnComplete += completeHandler;
-                tool.Call(toolRequest.Params);
+                tool.OnComplete += onComplete;
+                tool.Call(request.Params);
             }
             else
             {
-                GD.PrintErr($"Tool missing: {toolRequest.Tool}");
-                if (_tools.ContainsKey("final_tool"))
-                    _tools["final_tool"].Call("Error: Tool not found");
+                GD.PrintErr($"Tool missing: {request.Tool}");
+                OnTurnComplete?.Invoke();
+            }
+        }
+
+        private void RunFinalTool(string inputParams)
+        {
+            if (_tools.TryGetValue("FinalTool", out ITool finalTool))
+            {
+                OnUIUpdate?.Invoke("📝 Finalizing...");
+                
+                Action<string> onFinalComplete = null;
+                onFinalComplete = (result) =>
+                {
+                    finalTool.OnComplete -= onFinalComplete;
+                    _executionLog.Add(result);
+                    OnTurnComplete?.Invoke();
+                };
+
+                finalTool.OnComplete += onFinalComplete;
+                finalTool.Call(inputParams);
+            }
+            else
+            {
+                GD.PrintErr("FinalTool not found!");
+                OnTurnComplete?.Invoke();
             }
         }
 

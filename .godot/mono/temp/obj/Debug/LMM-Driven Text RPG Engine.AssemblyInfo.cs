@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LMM-Driven Text RPG Engine")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+208077fd740d4a5331f914b3e6c42de2dcd35093")]
 [assembly: System.Reflection.AssemblyProductAttribute("LMM-Driven Text RPG Engine")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LMM-Driven Text RPG Engine")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

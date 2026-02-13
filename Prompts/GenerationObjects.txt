@@ -1,0 +1,32 @@
+TASK:
+Generate a list of Objects to populate a specific location.
+
+INPUT CONTEXT:
+{0}
+
+INSTRUCTIONS:
+1. Start ID numbering from `next_id`. Increment for each new object.
+2. ROOT Objects (Walls, Tables, floors, containers, humans) must have `cell_indices`.
+3. CHILD Objects (Items in containers, things on tables) must have `parent_object_id` pointing to the existin or you just created Container/Surface object
+4. `history` array should contain single element with aggregated description.
+5. Do NOT create objects outside the provided location.
+6. Walls and floor can't have any child objects.
+7. Try create minimum count of object, we dont need many.
+
+OUTPUT JSON:
+{{
+	"objects": [
+		{{
+			"id": 105,
+			"parent_object_id": null,
+			"cell_indices": ["10:10:0"],
+			"history": ["Wooden Chair", "A simple sturdy chair made of oak.", "Condition: New"]
+		}},
+		{{
+			"id": 106,
+			"parent_object_id": 105, 
+			"cell_indices": null,
+			"history": ["Cushion", "A soft red cushion.", "On the chair"]
+		}}
+	]
+}}

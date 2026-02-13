@@ -8,17 +8,18 @@ using Godot;
 using RPG.AI.Core;
 using RPG.Core;
 using HttpClient = System.Net.Http.HttpClient;
+using System.Text.Json.Serialization; // Добавлено для атрибутов JSON
 
 namespace RPG.AI.Providers
 {
     public class GeminiProvider : ILmmProvider
     {
+        public event Action<string> OnUpdate;
         private readonly string _apiKey;
         private readonly string _modelName;
         private readonly HttpClient _httpClient;
-        
-        // Адрес для модели эмбеддингов
-        private const string EmbeddingModel = "text-embedding-004";
+
+        private const string EmbeddingModel = "gemini-embedding-001";
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 
         public GeminiProvider(string apiKey, string modelName)
@@ -26,11 +27,13 @@ namespace RPG.AI.Providers
             _apiKey = apiKey;
             _modelName = modelName;
             _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromMinutes(10); 
+            _httpClient.Timeout = TimeSpan.FromMinutes(10);
         }
 
         public async Task<string> GenerateAsync(LmmRequest request)
         {
+            // NotifyUpdate("Sending request to Gemini...");
+
             var url = $"{BaseUrl}/{_modelName}:generateContent?key={_apiKey}";
             var jsonBody = BuildGeminiRequestBody(request);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -44,7 +47,14 @@ namespace RPG.AI.Providers
                 return null;
             }
 
-            return ParseGeminiResponse(responseString);
+            // Модифицированная логика парсинга для получения токенов
+            if (JsonUtils.TryDeserialize<GeminiResponseRoot>(responseString, out var root))
+            {
+                ProcessUsageMetadata(root.UsageMetadata);
+                return ExtractTextFromRoot(root);
+            }
+
+            return null;
         }
 
         public async IAsyncEnumerable<string> StreamGenerateAsync(LmmRequest request)
@@ -74,12 +84,16 @@ namespace RPG.AI.Providers
                 buffer.Append(line);
                 string currentBuffer = buffer.ToString().Trim();
 
+                // Gemini stream отправляет массив JSON объектов, иногда разделенных запятыми
                 if (currentBuffer.StartsWith("{") && currentBuffer.EndsWith("}"))
                 {
                     string cleanJson = currentBuffer.TrimStart('[').TrimEnd(']').TrimEnd(',');
 
                     if (JsonUtils.TryDeserialize<GeminiResponseRoot>(cleanJson, out var chunkObj))
                     {
+                        // Проверяем метаданные в каждом чанке (обычно приходят в последнем)
+                        ProcessUsageMetadata(chunkObj.UsageMetadata);
+
                         string textChunk = ExtractTextFromRoot(chunkObj);
                         if (!string.IsNullOrEmpty(textChunk))
                         {
@@ -95,11 +109,11 @@ namespace RPG.AI.Providers
                 }
             }
         }
-        
+
         public async Task<float[]> GetEmbeddingAsync(string text)
         {
             var url = $"{BaseUrl}/{EmbeddingModel}:embedContent?key={_apiKey}";
-            
+
             var payload = new
             {
                 content = new { parts = new[] { new { text = text } } }
@@ -119,33 +133,26 @@ namespace RPG.AI.Providers
             {
                 return root.Embedding?.Values;
             }
+
             return null;
-        }
-
-        // --- DTOs for Embedding ---
-        private class EmbeddingResponseRoot
-        {
-            [System.Text.Json.Serialization.JsonPropertyName("embedding")]
-            public EmbeddingData Embedding { get; set; }
-        }
-
-        private class EmbeddingData
-        {
-            [System.Text.Json.Serialization.JsonPropertyName("values")]
-            public float[] Values { get; set; }
         }
 
         // --- Helpers ---
 
+        private void ProcessUsageMetadata(UsageMetadata metadata)
+        {
+            if (metadata != null)
+            {
+                string message = $"[System] Tokens send {metadata.PromptTokenCount}. Tokens received {metadata.CandidatesTokenCount} . Total {metadata.TotalTokenCount}";
+                OnUpdate?.Invoke(message);
+            }
+        }
+
         private string BuildGeminiRequestBody(LmmRequest req)
         {
-            // Собираем части сообщения (текст + картинки)
             var parts = new List<object>();
-
-            // 1. Добавляем текст
             parts.Add(new { text = req.UserPrompt });
 
-            // 2. Добавляем картинки, если есть
             if (req.Images != null && req.Images.Count > 0)
             {
                 foreach (var img in req.Images)
@@ -164,7 +171,6 @@ namespace RPG.AI.Providers
                 }
             }
 
-            // Формируем структуру Gemini API
             var geminiReq = new
             {
                 contents = new[]
@@ -188,6 +194,7 @@ namespace RPG.AI.Providers
         {
             if (JsonUtils.TryDeserialize<GeminiResponseRoot>(json, out var root))
             {
+                ProcessUsageMetadata(root.UsageMetadata); // Также обрабатываем здесь на всякий случай
                 return ExtractTextFromRoot(root);
             }
 
@@ -208,9 +215,38 @@ namespace RPG.AI.Providers
             return "";
         }
 
+        // --- DTOs ---
+
+        private class EmbeddingResponseRoot
+        {
+            [JsonPropertyName("embedding")]
+            public EmbeddingData Embedding { get; set; }
+        }
+
+        private class EmbeddingData
+        {
+            [JsonPropertyName("values")]
+            public float[] Values { get; set; }
+        }
+
         private class GeminiResponseRoot
         {
             public List<Candidate> Candidates { get; set; }
+            
+            [JsonPropertyName("usageMetadata")]
+            public UsageMetadata UsageMetadata { get; set; }
+        }
+
+        private class UsageMetadata
+        {
+            [JsonPropertyName("promptTokenCount")]
+            public int PromptTokenCount { get; set; }
+
+            [JsonPropertyName("candidatesTokenCount")]
+            public int CandidatesTokenCount { get; set; }
+
+            [JsonPropertyName("totalTokenCount")]
+            public int TotalTokenCount { get; set; }
         }
 
         private class Candidate

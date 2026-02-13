@@ -20,9 +20,6 @@ namespace RPG.Models
     public class MutableData
     {
         [JsonPropertyName("locations")] public List<LocationData> Locations { get; set; } = new();
-
-        [JsonPropertyName("cells")] public List<CellData> Cells { get; set; } = new();
-
         [JsonPropertyName("objects")] public List<ObjectData> Objects { get; set; } = new();
     }
 
@@ -34,5 +31,23 @@ namespace RPG.Models
     public class TemporaryData
     {
         [JsonPropertyName("text")] public string Result { get; set; }
+    }
+    
+    public class GenerationRequest
+    {
+        [JsonPropertyName("type")] public string Type { get; set; } // location, group, object
+        [JsonPropertyName("description")] public string Description { get; set; }
+        [JsonPropertyName("cell")] public string Cell { get; set; }
+        [JsonPropertyName("id")] public int? Id { get; set; }
+    }
+        
+    public class ObjectsResponse
+    {
+        [JsonPropertyName("objects")] public List<ObjectData> Objects { get; set; }
+    }
+
+    public class GroupResponse
+    {
+        [JsonPropertyName("groups")] public List<GroupData> Groups { get; set; }
     }
 }

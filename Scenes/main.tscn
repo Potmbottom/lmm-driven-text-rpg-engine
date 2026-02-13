@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cirxdjo512v6n" path="res://Scripts/UI/GameUI.cs" id="1_8gbba"]
 [ext_resource type="Script" uid="uid://msc21lun32fm" path="res://Scripts/Core/ToolController.cs" id="2_jjvhh"]
-[ext_resource type="Script" uid="uid://ddtpoe0f80v60" path="res://Scripts/Tools/LocationGeneratorTool.cs" id="3_6bp64"]
 [ext_resource type="Script" uid="uid://ffsmwnybv3ug" path="res://Scripts/Core/InputHandler.cs" id="3_kry3j"]
 [ext_resource type="Script" uid="uid://cjrt2ospo02gv" path="res://Scripts/Tools/FinalTool.cs" id="4_344ge"]
 [ext_resource type="Script" uid="uid://bkma06uorp2dj" path="res://Scripts/AI/PromptLibrary.cs" id="4_jjvhh"]
 [ext_resource type="Script" uid="uid://bvsoturpmtqfp" path="res://Scripts/Tools/SimulationTool.cs" id="5_344ge"]
 [ext_resource type="Script" uid="uid://bvkeguwkf8loy" path="res://Scripts/Core/MapGenerator.cs" id="5_kry3j"]
+[ext_resource type="Script" uid="uid://dfr2cbt3baqly" path="res://Scripts/Tools/GenerationTool.cs" id="6_hptm8"]
 [ext_resource type="Script" uid="uid://h6loyno4fixh" path="res://Scripts/Tools/QueryTool.cs" id="6_ynf5e"]
 
 [node name="GameRoot" type="Control" node_paths=PackedStringArray("Controller", "InputHandler", "_chatHistory", "_inputField", "_sendButton", "_scrollContainer")]
@@ -27,23 +27,23 @@ _scrollContainer = NodePath("MarginContainer/MainVBox/ChatScroll")
 
 [node name="ToolController" type="Node" parent="." node_paths=PackedStringArray("RegisteredToolsNodes")]
 script = ExtResource("2_jjvhh")
-RegisteredToolsNodes = [NodePath("LocationGeneration"), NodePath("FinalTool"), NodePath("Simulation"), NodePath("Query")]
-
-[node name="LocationGeneration" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen")]
-script = ExtResource("3_6bp64")
-MapGen = NodePath("../../MapGenerator")
+RegisteredToolsNodes = [NodePath("Generation"), NodePath("FinalTool"), NodePath("Simulation"), NodePath("Query")]
 
 [node name="FinalTool" type="Node" parent="ToolController"]
 script = ExtResource("4_344ge")
 
-[node name="Simulation" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen", "LocationGeneratorTool", "QueryTool")]
+[node name="Simulation" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen", "GeneratorTool", "QueryTool")]
 script = ExtResource("5_344ge")
 MapGen = NodePath("../../MapGenerator")
-LocationGeneratorTool = NodePath("../LocationGeneration")
+GeneratorTool = NodePath("../Generation")
 QueryTool = NodePath("../Query")
 
 [node name="Query" type="Node" parent="ToolController"]
 script = ExtResource("6_ynf5e")
+
+[node name="Generation" type="Node" parent="ToolController" node_paths=PackedStringArray("MapGen")]
+script = ExtResource("6_hptm8")
+MapGen = NodePath("../../MapGenerator")
 
 [node name="InputHandler" type="Node" parent="." node_paths=PackedStringArray("Controller", "MapGen")]
 script = ExtResource("3_kry3j")
@@ -55,6 +55,7 @@ script = ExtResource("4_jjvhh")
 
 [node name="MapGenerator" type="Node" parent="." node_paths=PackedStringArray("TargetViewport", "ViewportRoot")]
 script = ExtResource("5_kry3j")
+CellSize = 64
 TargetViewport = NodePath("SubViewport")
 ViewportRoot = NodePath("SubViewport/Control")
 

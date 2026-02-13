@@ -1,0 +1,20 @@
+TASK:
+Design the layout for a NEW Group (room/extension) to be added to an existing Location.
+
+INPUT CONTEXT:
+{0}
+(Contains: "location_id", "anchor_cell", "description")
+
+INSTRUCTIONS:
+1. Use the provided map image to find free space starting from `anchor_cell`.
+2. Generate cell indices that form a logical shape (square, rectangle, irregular) fitting the `description`.
+3. Do not overlap with occupied cells shown in the map.
+
+OUTPUT JSON:
+{{
+	"groups": [
+		{{
+			"cell_indices": ["x:y:z", "x:y:z", ...]
+		}}
+	]
+}}

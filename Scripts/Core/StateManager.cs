@@ -66,7 +66,6 @@ namespace RPG.Core
                     {
                         consolidatedChanges.Mutable.Locations.AddRange(response.Result.Mutable.Locations);
                         consolidatedChanges.Mutable.Objects.AddRange(response.Result.Mutable.Objects);
-                        consolidatedChanges.Mutable.Cells.AddRange(response.Result.Mutable.Cells);
                     }
 
                     if (response.Result.Immutable?.Text != null &&
@@ -135,13 +134,6 @@ namespace RPG.Core
                     // Update Vector DB (Objects)
                     string desc = $"[Object] History: {string.Join("; ", newObj.History)}";
                     await VectorDB.UpdateObject(newObj.Id, desc);
-                }
-
-                foreach (var newCell in changes.Mutable.Cells)
-                {
-                    int index = CurrentWorld.Cells.FindIndex(c => c.Index == newCell.Index);
-                    if (index != -1) CurrentWorld.Cells[index] = newCell;
-                    else CurrentWorld.Cells.Add(newCell);
                 }
             }
 
@@ -212,13 +204,6 @@ namespace RPG.Core
                     int i = CurrentWorld.Objects.FindIndex(x => x.Id == o.Id);
                     if (i != -1) CurrentWorld.Objects[i] = o;
                     else CurrentWorld.Objects.Add(o);
-                }
-
-                foreach (var c in changes.Mutable.Cells)
-                {
-                    int i = CurrentWorld.Cells.FindIndex(x => x.Index == c.Index);
-                    if (i != -1) CurrentWorld.Cells[i] = c;
-                    else CurrentWorld.Cells.Add(c);
                 }
             }
 

@@ -15,3 +15,4 @@ C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\L
 C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.genruntimeconfig.cache
 C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\ref\LMM-Driven Text RPG Engine.dll
 C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driv.D254D332.Up2Date
+C:\Users\nkcxi\Documents\lmm-driven-text-rpg-engine\.godot\mono\temp\obj\Debug\LMM-Driven Text RPG Engine.sourcelink.json

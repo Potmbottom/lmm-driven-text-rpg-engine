@@ -1,691 +1,268 @@
 {
   "version_id": 2,
-  "timestamp": "day 1, 09:00:50",
+  "timestamp": "day 1, 06:00:00",
   "changes": {
     "mutable": {
       "locations": [
         {
-          "id": 1,
-          "description": "A cozy, timber-framed tavern filled with the warm scent of roasted meat and ale.",
+          "id": 23,
+          "description": "A long 1x10 dirt road extending south from the hut\u0027s entrance.",
           "groups": [
             {
-              "Description": "A spacious main hall with heavy wooden tables and benches arranged in the center. A stone hearth warms the western wall, where two visitors sit enjoying their drinks.",
-              "CellIndices": [
-                "-3:-3:0",
-                "-2:-3:0",
-                "-1:-3:0",
-                "0:-3:0",
-                "1:-3:0",
-                "2:-3:0",
-                "-3:-2:0",
-                "-2:-2:0",
-                "-1:-2:0",
+              "description": "A Dirt Road extends across the entire length of the area. A Wooden Signpost is situated at the northern end of the path. A Cairn is placed further south along the road. An Animal Trap is located near the southern end of the path.",
+              "cell_indices": [
                 "0:-2:0",
-                "1:-2:0",
-                "2:-2:0",
-                "-3:-1:0",
-                "-2:-1:0",
-                "-1:-1:0",
-                "0:-1:0",
-                "1:-1:0",
-                "2:-1:0",
-                "-3:0:0",
-                "-2:0:0",
-                "-1:0:0",
-                "0:0:0",
-                "1:0:0",
-                "2:0:0",
-                "-3:1:0",
-                "-2:1:0",
-                "-1:1:0",
-                "0:1:0",
-                "1:1:0",
-                "2:1:0",
-                "-3:2:0",
-                "-2:2:0",
-                "-1:2:0",
-                "0:2:0",
-                "1:2:0",
-                "2:2:0"
-              ]
-            },
-            {
-              "Description": "A compact kitchen area cluttered with hanging pots and shelves of ingredients. A cook works busily near a hot stove positioned in the corner.",
-              "CellIndices": [
-                "3:-1:0",
-                "4:-1:0",
-                "3:0:0",
-                "4:0:0"
-              ]
-            },
-            {
-              "Description": "A quiet bedroom featuring a simple bed against the northern wall and a small table near the door. A maid tends to a wooden bathtub placed in the corner.",
-              "CellIndices": [
-                "-1:3:0",
-                "0:3:0",
-                "1:3:0",
-                "-1:4:0",
-                "0:4:0",
-                "1:4:0",
-                "-1:5:0",
-                "0:5:0",
-                "1:5:0"
+                "0:-3:0",
+                "0:-4:0",
+                "0:-5:0",
+                "0:-6:0",
+                "0:-7:0",
+                "0:-8:0",
+                "0:-9:0",
+                "0:-10:0",
+                "0:-11:0"
               ]
             }
           ],
-          "CellIndices": [
-            "-3:-3:0",
-            "-2:-3:0",
-            "-1:-3:0",
-            "0:-3:0",
-            "1:-3:0",
-            "2:-3:0",
-            "-3:-2:0",
-            "-2:-2:0",
-            "-1:-2:0",
-            "0:-2:0",
-            "1:-2:0",
-            "2:-2:0",
-            "-3:-1:0",
-            "-2:-1:0",
-            "-1:-1:0",
-            "0:-1:0",
-            "1:-1:0",
-            "2:-1:0",
-            "-3:0:0",
-            "-2:0:0",
-            "-1:0:0",
-            "0:0:0",
-            "1:0:0",
-            "2:0:0",
-            "-3:1:0",
-            "-2:1:0",
-            "-1:1:0",
-            "0:1:0",
-            "1:1:0",
-            "2:1:0",
-            "-3:2:0",
-            "-2:2:0",
-            "-1:2:0",
-            "0:2:0",
-            "1:2:0",
-            "2:2:0",
-            "3:-1:0",
-            "4:-1:0",
-            "3:0:0",
-            "4:0:0",
-            "-1:3:0",
-            "0:3:0",
-            "1:3:0",
-            "-1:4:0",
-            "0:4:0",
-            "1:4:0",
-            "-1:5:0",
-            "0:5:0",
-            "1:5:0"
-          ]
-        }
-      ],
-      "cells": [
-        {
-          "index": "-3:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:-3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-3:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:-2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-3:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-3:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-3:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-3:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-2:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "2:2:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "3:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "4:-1:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "3:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "4:0:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:3:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:4:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:4:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:4:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "-1:5:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "0:5:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
-        },
-        {
-          "index": "1:5:0",
-          "links": [],
-          "last_update_time": "day 1, 09:00:50"
+          "last_update_time": "day 1, 06:00:00"
         }
       ],
       "objects": [
         {
-          "id": 2,
+          "id": 19,
           "cell_indices": [
-            "-3:0:0",
-            "-3:-1:0"
+            "0:-2:0",
+            "0:-3:0",
+            "0:-4:0",
+            "0:-5:0",
+            "0:-6:0",
+            "0:-7:0",
+            "0:-8:0",
+            "0:-9:0",
+            "0:-10:0",
+            "0:-11:0"
           ],
           "history": [
-            "A large stone hearth built into the western wall, containing glowing embers and radiating heat."
+            "A long, narrow dirt road made of packed earth and scattered gravel, extending southward from the cabin\u0027s entrance."
+          ]
+        },
+        {
+          "id": 0,
+          "cell_indices": [
+            "-1:1:0",
+            "0:1:0",
+            "1:1:0",
+            "-1:0:0",
+            "0:0:0",
+            "1:0:0",
+            "-1:-1:0",
+            "0:-1:0",
+            "1:-1:0"
+          ],
+          "history": [
+            "A rustic floor made of wide, hand-hewn wooden planks, showing signs of wear from heavy boots."
+          ]
+        },
+        {
+          "id": 1,
+          "cell_indices": [
+            "-1:1:0",
+            "0:1:0",
+            "1:1:0",
+            "-1:0:0",
+            "1:0:0",
+            "-1:-1:0",
+            "0:-1:0",
+            "1:-1:0"
+          ],
+          "history": [
+            "Sturdy log walls notched together and sealed with dried moss to insulate the cabin against the forest chill."
+          ]
+        },
+        {
+          "id": 2,
+          "cell_indices": [
+            "0:-1:0"
+          ],
+          "history": [
+            "A heavy wooden door with iron hinges and a simple latch, serving as the main entrance."
           ]
         },
         {
           "id": 3,
           "cell_indices": [
-            "0:0:0",
-            "1:0:0"
+            "0:1:0"
           ],
           "history": [
-            "A heavy oak table, stained dark from years of spilled ale and grease."
+            "A small rectangular window opening with a wooden shutter, currently closed."
           ]
         },
         {
           "id": 4,
           "cell_indices": [
-            "0:-1:0",
-            "1:-1:0"
+            "1:1:0"
           ],
           "history": [
-            "A sturdy wooden bench with a polished seat."
+            "A large fireplace built from river stones, currently cold and containing only grey ash."
           ]
         },
         {
           "id": 5,
           "cell_indices": [
-            "-1:0:0"
+            "1:1:0"
           ],
           "history": [
-            "A human male visitor, 182cm, 85kg. Broad shoulders, weathered skin, and a short beard. Genitals consist of a flaccid, uncircumcised penis and a hairy scrotum."
+            "A stack of dry, split firewood logs piled neatly on the floor beside the stone fireplace."
           ]
         },
         {
           "id": 6,
-          "parent_object_id": 5,
-          "cell_indices": [],
+          "cell_indices": [
+            "-1:0:0"
+          ],
           "history": [
-            "A rough linen tunic, dyed a faded green."
+            "A powerful recurve hunting bow made of dark wood and bone, leaning against the log wall."
           ]
         },
         {
           "id": 7,
-          "parent_object_id": 5,
-          "cell_indices": [],
+          "cell_indices": [
+            "-1:0:0"
+          ],
           "history": [
-            "Brown woolen trousers, patched at the knees."
+            "A leather quiver containing several arrows with sharp flint heads and bird-feather fletching."
           ]
         },
         {
           "id": 8,
-          "parent_object_id": 5,
-          "cell_indices": [],
+          "cell_indices": [
+            "0:0:0"
+          ],
           "history": [
-            "A ceramic mug filled with frothy ale."
+            "Name: Maza. Race: Orc. Gender: Female. Height: 178cm. Weight: 82kg. Build: Athletic and lean. Distinctive Features: Pale green skin, yellow eyes, two small tusks protruding from her lower lip, and black hair tied in a high ponytail."
           ]
         },
         {
           "id": 9,
-          "cell_indices": [
-            "-1:-1:0"
-          ],
+          "parent_object_id": 8,
           "history": [
-            "A human female visitor, 165cm, 60kg. Slender build with long brown hair. Breasts are small and perky with pale areolas; vulva is neat with trimmed hair."
+            "Layer 1: Simple linen undergarments consisting of a supportive chest wrap and a loincloth."
           ]
         },
         {
           "id": 10,
-          "parent_object_id": 9,
-          "cell_indices": [],
+          "parent_object_id": 8,
           "history": [
-            "A simple grey wool dress with long sleeves."
+            "Layer 2: A set of practical hunting clothes made of dark deerskin, including a sleeveless tunic and fitted trousers."
           ]
         },
         {
           "id": 11,
-          "parent_object_id": 9,
-          "cell_indices": [],
+          "parent_object_id": 8,
           "history": [
-            "A pair of worn leather shoes."
+            "Layer 3: A thick fur-lined leather mantle draped over the shoulders for warmth in the forest."
           ]
         },
         {
           "id": 12,
-          "parent_object_id": 9,
-          "cell_indices": [],
+          "parent_object_id": 8,
           "history": [
-            "A glass goblet half-filled with red wine."
+            "Layer 4: A necklace made of wolf teeth and leather cord, a trophy from a previous hunt."
           ]
         },
         {
           "id": 13,
           "cell_indices": [
-            "4:-1:0"
+            "0:1:0"
           ],
           "history": [
-            "A black iron stove, radiating intense heat from a coal fire within."
+            "A large, rustic fireplace built from heavy river stones. The hearth is currently cold and contains no lit embers."
           ]
         },
         {
           "id": 14,
-          "cell_indices": [
-            "4:0:0"
-          ],
+          "parent_object_id": 13,
           "history": [
-            "A tall wooden shelving unit cluttered with kitchen supplies."
+            "A neat stack of dry, split oak firewood placed within the fireplace hearth."
           ]
         },
         {
           "id": 15,
-          "parent_object_id": 14,
-          "cell_indices": [],
+          "cell_indices": [
+            "-1:0:0"
+          ],
           "history": [
-            "A large copper pot with a dented bottom."
+            "A powerful recurve bow crafted from dark yew wood and reinforced with horn, leaning against a support."
           ]
         },
         {
           "id": 16,
-          "parent_object_id": 14,
-          "cell_indices": [],
+          "cell_indices": [
+            "-1:0:0"
+          ],
           "history": [
-            "A cast iron skillet hanging from a hook."
+            "A rugged leather quiver with a thick shoulder strap, designed for quick access to ammunition."
           ]
         },
         {
           "id": 17,
-          "parent_object_id": 14,
-          "cell_indices": [],
+          "parent_object_id": 16,
           "history": [
-            "A burlap sack containing white flour."
-          ]
-        },
-        {
-          "id": 18,
-          "parent_object_id": 14,
-          "cell_indices": [],
-          "history": [
-            "A glass jar filled with dried herbs."
+            "A bundle of twenty hunting arrows with sharp flint heads and grey goose feather fletching."
           ]
         },
         {
           "id": 19,
           "cell_indices": [
-            "3:0:0"
+            "0:-2:0",
+            "0:-3:0",
+            "0:-4:0",
+            "0:-5:0",
+            "0:-6:0",
+            "0:-7:0",
+            "0:-8:0",
+            "0:-9:0",
+            "0:-10:0",
+            "0:-11:0"
           ],
           "history": [
-            "A human male cook, 170cm, 95kg. Heavy set with a round belly and bald head. Genitals consist of a small penis partially obscured by pubic fat and a loose scrotum."
+            "A long, narrow dirt road made of packed earth and scattered gravel, extending southward from the cabin\u0027s entrance."
           ]
         },
         {
           "id": 20,
-          "parent_object_id": 19,
-          "cell_indices": [],
+          "cell_indices": [
+            "0:-2:0"
+          ],
           "history": [
-            "A white apron stained with grease and sauce."
+            "A weathered wooden signpost standing at the start of the dirt path, featuring a crude carving of a hunting bow pointing back toward the cabin."
           ]
         },
         {
           "id": 21,
-          "parent_object_id": 19,
-          "cell_indices": [],
+          "cell_indices": [
+            "0:-7:0"
+          ],
           "history": [
-            "A sweat-stained linen shirt."
+            "A small cairn of stacked grey river stones, likely placed here as a navigational marker by a traveler or hunter."
           ]
         },
         {
           "id": 22,
-          "parent_object_id": 19,
-          "cell_indices": [],
-          "history": [
-            "A large wooden stirring spoon."
-          ]
-        },
-        {
-          "id": 23,
           "cell_indices": [
-            "0:5:0",
-            "1:5:0"
+            "0:-10:0"
           ],
           "history": [
-            "A simple wooden bed frame with a straw mattress and wool blanket."
-          ]
-        },
-        {
-          "id": 24,
-          "cell_indices": [
-            "-1:3:0"
-          ],
-          "history": [
-            "A small bedside table made of pine."
-          ]
-        },
-        {
-          "id": 25,
-          "cell_indices": [
-            "1:3:0"
-          ],
-          "history": [
-            "A round wooden bathtub bound with iron hoops, currently empty."
-          ]
-        },
-        {
-          "id": 26,
-          "cell_indices": [
-            "0:3:0"
-          ],
-          "history": [
-            "A human female maid, 160cm, 55kg. Petite build with curly black hair. Breasts are full and soft with dark nipples; vulva is plump and covered in thick dark hair.",
-            "Stopped to inspect clothing",
-            "Confirmed lack of shoes and underwear during inspection"
-          ]
-        },
-        {
-          "id": 27,
-          "parent_object_id": 26,
-          "cell_indices": [],
-          "history": [
-            "A modest servant\u0027s dress made of rough brown fabric.",
-            "Inspected for fit"
-          ]
-        },
-        {
-          "id": 28,
-          "parent_object_id": 26,
-          "cell_indices": [],
-          "history": [
-            "A white linen cap covering the hair.",
-            "Checked by owner"
-          ]
-        },
-        {
-          "id": 29,
-          "parent_object_id": 26,
-          "cell_indices": [],
-          "history": [
-            "A rough cloth rag used for cleaning."
+            "A rusted iron animal trap, its jaws open and partially buried under a layer of loose dirt and forest debris."
           ]
         }
       ]
     },
     "immutable": {
       "text": {
-        "Text": "Before venturing out to begin her work, the maid paused to inspect her attire, ensuring nothing had been forgotten. She started with her head, reaching up to verify the presence of her white linen cap by touch. Satisfied, she looked down, her hands smoothing the rough fabric of her servant\u0027s dress. Finally, she lifted the hem of the garment to inspect the layers usually hidden from view. The check confirmed the absence of any undergarments, and she noted that she was standing barefoot on the floor.",
-        "Locations": [
-          1
-        ],
-        "SimulationLog": [
-          {
-            "structured": [
-              {
-                "actions": [
-                  {
-                    "type": "expand_history",
-                    "action": {
-                      "object_id": 26,
-                      "new_text": "Stopped to inspect clothing"
-                    }
-                  }
-                ],
-                "text": "The maid (26) pauses to inspect her attire. She reaches up to her head.",
-                "time": "day 1, 09:00:05"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "expand_history",
-                    "action": {
-                      "object_id": 28,
-                      "new_text": "Checked by owner"
-                    }
-                  }
-                ],
-                "text": "She verifies the presence of her white linen cap (28) by touch.",
-                "time": "day 1, 09:00:15"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "expand_history",
-                    "action": {
-                      "object_id": 27,
-                      "new_text": "Inspected for fit"
-                    }
-                  }
-                ],
-                "text": "She looks down and smooths the rough fabric of her servant\u0027s dress (27).",
-                "time": "day 1, 09:00:30"
-              },
-              {
-                "actions": [
-                  {
-                    "type": "expand_history",
-                    "action": {
-                      "object_id": 26,
-                      "new_text": "Confirmed lack of shoes and underwear during inspection"
-                    }
-                  }
-                ],
-                "text": "She lifts the hem of her dress to check non-visible layers. She notes the absence of undergarments and observes she is barefoot.",
-                "time": "day 1, 09:00:50"
-              }
-            ],
-            "break_point": "ActionComplete",
-            "break_description": "action complete"
-          }
-        ]
+        "Text": "Generation Tool: Created location 23: 1x10 длинная дорога хижины на юг",
+        "Locations": [],
+        "SimulationLog": []
       }
     },
     "temporary": {}

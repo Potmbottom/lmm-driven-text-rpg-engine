@@ -55,6 +55,11 @@ namespace RPG.UI
             }
         }
         
+        public void OnProviderUpdate(string data)
+        {
+            GD.Print($"[System]: {data}");
+        }
+        
         private void AppendToCurrentResponse(string chunk)
         {
             if (_currentStreamingLabel != null)
@@ -73,11 +78,18 @@ namespace RPG.UI
         private RichTextLabel AddMessageBubble(string text, bool isUser)
         {
             var label = new RichTextLabel();
+            
+            label.SelectionEnabled = true;
+            label.ContextMenuEnabled = true;
+            label.FocusMode = FocusModeEnum.Click;
+
             label.FitContent = true;
             label.Text = text;
             label.Modulate = isUser ? new Color(0.6f, 0.8f, 1f) : new Color(0.9f, 0.9f, 0.9f);
             
             var panel = new PanelContainer();
+            panel.MouseFilter = MouseFilterEnum.Pass; 
+
             panel.AddChild(label);
             _chatHistory.AddChild(panel);
             

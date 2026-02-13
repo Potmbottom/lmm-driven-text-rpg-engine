@@ -1,3 +1,4 @@
+using System; // Добавлено для Action
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
@@ -6,6 +7,9 @@ namespace RPG.AI.Core
 {
     public interface ILmmProvider
     {
+        // Ивент для текстовых уведомлений от провайдера
+        event Action<string> OnUpdate;
+
         Task<string> GenerateAsync(LmmRequest request);
         IAsyncEnumerable<string> StreamGenerateAsync(LmmRequest request);
         Task<float[]> GetEmbeddingAsync(string text);

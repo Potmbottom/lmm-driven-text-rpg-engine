@@ -8,8 +8,13 @@ namespace RPG.AI
     {
         public static LmmFactory Instance { get; private set; }
         
-        private string GeminiApiKey = "AIzaSyCucoc-aayWMcKymnA4CMx_zWhtJqXJmyE"; 
+        [ExportCategory("API Settings")]
+        [Export] private string GeminiApiKey = "AIzaSyCucoc-aayWMcKymnA4CMx_zWhtJqXJmyE"; 
         
+        // По умолчанию localhost для ПК.
+        // Для телефона нужно будет вписать сюда IP из Tailscale (например, http://100.x.y.z:1234)
+        [Export] private string LocalLmmUrl = "http://localhost:1234";
+
         private const string MODEL_FAST = "gemini-3-flash-preview"; // Быстро, дешево (для логики)
         private const string MODEL_SMART = "gemini-3-pro-preview";  // Умно, медленнее (для текста)
 
@@ -20,8 +25,19 @@ namespace RPG.AI
 
         public ILmmProvider GetProvider(LmmModelType type)
         {
-            string modelName = type == LmmModelType.Smart ? MODEL_SMART : MODEL_FAST;
-            return new GeminiProvider(GeminiApiKey, modelName);
+            switch (type)
+            {
+                case LmmModelType.Local:
+                    // Передаем URL из настройки
+                    return new LocalLmmProvider(LocalLmmUrl);
+
+                case LmmModelType.Smart:
+                    return new GeminiProvider(GeminiApiKey, MODEL_SMART);
+                
+                case LmmModelType.Fast:
+                default:
+                    return new GeminiProvider(GeminiApiKey, MODEL_FAST);
+            }
         }
     }
 }

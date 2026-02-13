@@ -1,0 +1,31 @@
+TASK:
+Design the layout (topology) for a NEW Location OR Groups based on the visual map and description.
+
+INPUT CONTEXT:
+{0} 
+(Contains: "anchor_cell", "description")
+
+VISUAL MAP INTERPRETATION:
+- You are provided with an image of the grid. 
+- Colored/Marked cells are OCCUPIED. You cannot build there.
+- Black/Empty cells are VOID/FREE. Build there.
+- The "anchor_cell" is your starting point.
+
+INSTRUCTIONS:
+1. Analyze the `description` to determine the size and number of Groups (rooms/areas).
+   - Example: "A small house" -> 1-2 groups, approx 3x3 to 5x5 cells total.
+   - Example: "A large hall" -> 1 group, 10x5 cells.
+2. Select `cell_indices` from the FREE space on the map adjacent to the anchor.
+3. Groups must be contiguous (connected).
+
+OUTPUT JSON:
+{{
+	"description": ,// generalized purified description
+	"groups": [
+			{{
+				"cell_indices": ["x:y:z", "x:y:z", ...] // List of ALL coordinates for this room
+			}},
+			...
+		]
+	}}
+}}
