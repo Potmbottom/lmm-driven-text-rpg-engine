@@ -6,8 +6,6 @@ namespace RPG.AI
 {
     public enum PromptType
     {
-        NextTool,
-        
         QueryOrchestrator,
         QuerySelector,
         QueryFinalizer,
@@ -19,14 +17,15 @@ namespace RPG.AI
         GenerationRules,
         GenerationObject,
         GenerationObjects,
-        GenerationGroup,
         GenerationLocation,
         GenerationQueryParser,
-        GenerationGroupDescription,
-        
+        GenerationKeys,
+
+        NextTool,
         Translator,
         Narrative,
-        UnsafeNarrative
+        UnsafeNarrative,
+        HistoryCompressor
     }
 
     public partial class PromptLibrary : Node
@@ -41,25 +40,21 @@ namespace RPG.AI
             Instance = this;
             EnsureDirectoryExists();
         }
-
-        /// <summary>
-        /// Возвращает текст промпта. Если переданы args, применяет string.Format.
-        /// </summary>
+        
         public string GetPrompt(PromptType key, params object[] args)
         {
-            string template = GetRawPrompt(key);
+            var template = GetRawPrompt(key);
 
             if (args != null && args.Length > 0)
             {
                 try
                 {
-                    // Заменяем {0}, {1} и т.д. на аргументы
                     return string.Format(template, args);
                 }
                 catch (FormatException ex)
                 {
                     GD.PrintErr($"PromptLibrary: Failed to format prompt '{key}'. Error: {ex.Message}");
-                    return template; // Возвращаем как есть в случае ошибки
+                    return template;
                 }
             }
 
@@ -73,11 +68,11 @@ namespace RPG.AI
                 return prompt;
             }
 
-            string path = $"{PROMPT_DIR}{key}.txt";
+            var path = $"{PROMPT_DIR}{key}.txt";
             if (FileAccess.FileExists(path))
             {
                 using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
-                string content = file.GetAsText();
+                var content = file.GetAsText();
                 _promptCache[key] = content;
                 return content;
             }

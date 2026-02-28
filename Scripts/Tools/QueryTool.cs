@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using RPG.AI.Providers;
 using RPG.Core.Helpers;
 
 namespace RPG.Tools
@@ -19,30 +20,10 @@ namespace RPG.Tools
         public event Action<string> OnUpdate;
         public event Action<string> OnComplete;
         public event Action<string> OnFail;
-
-        // Внутренние модели для общения с LMM внутри инструмента
-        private class OrchestratorDecision
-        {
-            [JsonPropertyName("tool_name")] public string ToolName { get; set; }
-            [JsonPropertyName("think")] public string Think { get; set; }
-            [JsonPropertyName("payload")] public string Payload { get; set; }
-        }
-
-        private class SelectionResult
-        {
-            [JsonPropertyName("selected_id")] public int? SelectedId { get; set; }
-            [JsonPropertyName("selected_index")] public int? SelectedIndex { get; set; }
-        }
-
-        private class FinalResponse
-        {
-            [JsonPropertyName("result")] public object Result { get; set; }
-        }
-
-        // Состояние выполнения
+        
         private List<string> _aggregatedHistory = new();
         private HashSet<int> _extractedEventIndices = new();
-        private const int MAX_STEPS = 5;
+        private const int MAX_STEPS = 1;
         
         public async void Call(string parameters)
         {
@@ -51,7 +32,6 @@ namespace RPG.Tools
                 _aggregatedHistory.Clear();
                 _extractedEventIndices.Clear();
                 
-                // Добавляем первичный запрос в историю. Модель сама разберет JSON если он там есть.
                 _aggregatedHistory.Add($"[USER_REQUEST]: {parameters}");
 
                 OnUpdate?.Invoke("🔍 Starting investigation...");
@@ -67,23 +47,22 @@ namespace RPG.Tools
 
         private async Task RunOrchestrationLoop()
         {
-            int stepCount = 0;
-            bool isComplete = false;
+            var stepCount = 0;
+            var isComplete = false;
 
             while (!isComplete && stepCount < MAX_STEPS)
             {
                 stepCount++;
-                
-                // 1. Запрос к Оркестратору
-                string historyContext = string.Join("\n---\n", _aggregatedHistory);
+                var historyContext = string.Join("\n---\n", _aggregatedHistory);
                 var request = new LmmRequest
                 {
                     SystemInstruction = PromptLibrary.Instance.GetPrompt(PromptType.QueryOrchestrator),
                     UserPrompt = historyContext,
-                    Temperature = 0.2f
+                    Temperature = 0.7f,
+                    ThinkingLevel = GeminiThinkingLevel.medium
                 };
 
-                string responseJson = await LmmFactory.Instance.GetProvider(LmmModelType.Fast).GenerateAsync(request);
+                var responseJson = await LmmFactory.Instance.GetProvider(LmmModelType.Fast).GenerateAsync(request);
                 
                 if (!JsonUtils.TryDeserialize<OrchestratorDecision>(responseJson, out var decision))
                 {
@@ -92,121 +71,128 @@ namespace RPG.Tools
                 }
 
                 OnUpdate?.Invoke($"🤔 {decision.Think}");
-                OnUpdate?.Invoke($"🛠️ Executing: {decision.ToolName}...");
-
-                // 2. Выполнение выбранного инструмента
-                string toolResult = await ExecuteSubTool(decision);
-
-                // 3. Запись результата
-                _aggregatedHistory.Add($"[THINK]: {decision.Think} \n[TOOL_RESULT ({decision.ToolName})]: {toolResult}");
-
-                // 4. Проверка на завершение
-                if (decision.ToolName.ToLower() == "final")
+                foreach (var tool in decision.Tools)
                 {
-                    isComplete = true;
-                    ProcessFinalResult(toolResult);
+                    OnUpdate?.Invoke($"🛠️ Executing: {tool.ToolName}...");
+                    var toolResult = await ExecuteSubTool(tool);
+                    _aggregatedHistory.Add($"[TOOL_RESULT ({tool.ToolName})]: {toolResult.Item1}");
+                    isComplete = toolResult.Item2;
+                    if(isComplete) break;
                 }
             }
 
-            if (!isComplete && stepCount >= MAX_STEPS)
+            if (isComplete || stepCount >= MAX_STEPS)
             {
-                OnUpdate?.Invoke("⚠️ Loop limit reached. Generating partial result...");
-                string finalRes = await GenerateFinalResponse();
+                OnUpdate?.Invoke("Generating final answer...");
+                var finalRes = await GenerateFinalResponse();
                 ProcessFinalResult(finalRes);
             }
         }
 
-        private async Task<string> ExecuteSubTool(OrchestratorDecision decision)
+        private async Task<(string, bool)> ExecuteSubTool(OrchestratorToolData decision)
         {
             var world = StateManager.Instance.CurrentWorld;
 
             switch (decision.ToolName.ToLower())
             {
                 case "get_location_by_id":
-                    if (int.TryParse(decision.Payload, out int locId))
+                    if (int.TryParse(decision.Payload, out var locId))
                     {
                         var loc = world.Locations.FirstOrDefault(l => l.Id == locId);
-                        return loc != null ? JsonUtils.Serialize(loc) : "Location not found.";
+                        return (loc != null ? JsonUtils.Serialize(loc) : "Location not found.", false);
                     }
-                    return "Invalid ID format.";
+                    return ("Invalid ID format.", false);
 
                 case "get_object_by_id":
-                    if (int.TryParse(decision.Payload, out int objId))
+                    if (int.TryParse(decision.Payload, out var objId))
                     {
                         var obj = world.Objects.FirstOrDefault(o => o.Id == objId);
-                        return obj != null ? JsonUtils.Serialize(obj) : "Object not found.";
+                        return (obj != null ? JsonUtils.Serialize(obj) : "Object not found.", false);
                     }
-                    return "Invalid ID format.";
+                    return ("Invalid ID format.", false);
 
-                // --- НОВЫЙ ИНСТРУМЕНТ: Рекурсивный поиск вложенных объектов ---
                 case "get_nested_objects":
-                    if (int.TryParse(decision.Payload, out int parentId))
+                    if (int.TryParse(decision.Payload, out var parentId))
                     {
                         var nestedObjects = GetRecursiveChildObjects(parentId, world);
-                        return nestedObjects.Count > 0 
+                        return (nestedObjects.Count > 0 
                             ? JsonUtils.Serialize(nestedObjects) 
-                            : "No nested objects found (Empty inventory/container).";
+                            : "No nested objects found (Empty inventory/container).", false);
                     }
-                    return "Invalid ID format for nested objects.";
+                    return ("Invalid ID format for nested objects.", false);
+                case "get_all_location_objects":
+                    if (int.TryParse(decision.Payload, out var targetLocIdForAll))
+                    {
+                        var targetLocObj = world.Locations.FirstOrDefault(l => l.Id == targetLocIdForAll);
+                        if (targetLocObj == null) return ("Location not found.", false);
+                        var allObjectIds = GetObjectsInLocation(targetLocObj, world);
+                        var allObjects = world.Objects
+                            .Where(o => allObjectIds.Contains(o.Id))
+                            .ToList();
+
+                        return (allObjects.Count > 0
+                            ? JsonUtils.Serialize(allObjects)
+                            : "Location is strictly empty (no objects found).", false);
+                    }
+                    return ("Invalid ID format for location objects.", false);
 
                 case "get_location_by_cell":
-                    string cellIndex = decision.Payload.Trim();
+                    var cellIndex = decision.Payload.Trim();
                     var locByCell = world.Locations.FirstOrDefault(l => l.GetCellIndices().Contains(cellIndex));
-                    return locByCell != null ? JsonUtils.Serialize(locByCell) : $"Location with cell {cellIndex} not found.";
+                    return (locByCell != null ? JsonUtils.Serialize(locByCell) : $"Location with cell {cellIndex} not found.", false);
 
                 case "get_recent_events":
-                    if (int.TryParse(decision.Payload, out int count))
+                    if (int.TryParse(decision.Payload, out var count))
                     {
                         var events = world.History.Texts.TakeLast(Math.Min(count, world.History.Texts.Count)).ToList();
                         
-                        int total = world.History.Texts.Count;
-                        for (int i = 0; i < events.Count; i++) 
+                        var total = world.History.Texts.Count;
+                        for (var i = 0; i < events.Count; i++) 
                             _extractedEventIndices.Add(total - events.Count + i);
                             
-                        return events.Count > 0 ? JsonUtils.Serialize(events) : "No recent events.";
+                        return (events.Count > 0 ? JsonUtils.Serialize(events) : "No recent events.", false);
                     }
-                    return "Invalid count format.";
+                    return ("Invalid count format.", false);
 
+                case "get_by_key":
+                    var searchLocation = world.Locations.FirstOrDefault(data => data.Keys.Contains(decision.Payload));
+                    var searchObject = world.Objects.FirstOrDefault(o => o.Keys.Contains(decision.Payload));
+                    return (
+                        $"Find entities for key {decision.Payload}:\nLocations:{JsonUtils.Serialize(searchLocation)}\nObjects:{JsonUtils.Serialize(searchObject)}",
+                        false);
                 case "find_object_by_similarity":
-                    return await HandleVectorSearch(decision.Payload, SearchType.Object);
+                    return (await HandleVectorSearch(decision.Payload, SearchType.Object), false);
 
                 case "find_location_by_similarity":
-                    return await HandleVectorSearch(decision.Payload, SearchType.Location);
+                    return (await HandleVectorSearch(decision.Payload, SearchType.Location), false);
 
                 case "find_text_by_similarity":
-                    return await HandleVectorSearch(decision.Payload, SearchType.Event);
+                    return (await HandleVectorSearch(decision.Payload, SearchType.Event), false);
 
                 case "find_object_in_location":
                     // Ожидаемый формат: "LocationID | Description"
                     var parts = decision.Payload.Split('|');
-                    if (parts.Length < 2) return "Invalid payload format. Use: 'LocationID | ObjectDescription'";
+                    if (parts.Length < 2) return ("Invalid payload format. Use: 'LocationID | ObjectDescription'", false);
                     
-                    if (!int.TryParse(parts[0].Trim(), out int targetLocId)) return "Invalid Location ID.";
-                    string searchDesc = parts[1].Trim();
+                    if (!int.TryParse(parts[0].Trim(), out var targetLocId)) return ("Invalid Location ID.", false);
+                    var searchDesc = parts[1].Trim();
 
                     var targetLoc = world.Locations.FirstOrDefault(l => l.Id == targetLocId);
-                    if (targetLoc == null) return "Location not found.";
-
-                    // Получаем ID всех объектов, которые принадлежат этой локации (напрямую или иерархически)
+                    if (targetLoc == null) return ("Location not found.", false);
                     var allowedObjectIds = GetObjectsInLocation(targetLoc, world);
                     
-                    if (allowedObjectIds.Count == 0) return "Location contains no objects.";
-
-                    // Выполняем векторный поиск с фильтрацией по ID
-                    return await HandleVectorSearch(searchDesc, SearchType.Object, allowedObjectIds);
+                    if (allowedObjectIds.Count == 0) return ("Location contains no objects.", false);
+                    
+                    return (await HandleVectorSearch(searchDesc, SearchType.Object, allowedObjectIds), false);
 
                 case "final":
-                    // Запускаем генерацию финального ответа
-                    return await GenerateFinalResponse();
+                    return ("Final", true);
 
                 default:
-                    return $"Unknown tool: {decision.ToolName}";
+                    return ($"Unknown tool: {decision.ToolName}", false);
             }
         }
-
-        /// <summary>
-        /// Рекурсивно находит все объекты, вложенные в указанный ParentID.
-        /// </summary>
+        
         private List<ObjectData> GetRecursiveChildObjects(int rootParentId, WorldState world)
         {
             var result = new List<ObjectData>();
@@ -214,13 +200,11 @@ namespace RPG.Tools
             var visited = new HashSet<int>();
 
             openList.Enqueue(rootParentId);
-            visited.Add(rootParentId); // Чтобы не уйти в бесконечный цикл если структура зациклена
+            visited.Add(rootParentId);
 
             while (openList.Count > 0)
             {
-                int currentParent = openList.Dequeue();
-
-                // Ищем прямых потомков
+                var currentParent = openList.Dequeue();
                 var children = world.Objects
                     .Where(o => o.ParentObjectId == currentParent)
                     .ToList();
@@ -231,7 +215,7 @@ namespace RPG.Tools
                     {
                         visited.Add(child.Id);
                         result.Add(child);
-                        openList.Enqueue(child.Id); // Добавляем в очередь для поиска "внуков"
+                        openList.Enqueue(child.Id);
                     }
                 }
             }
@@ -239,16 +223,11 @@ namespace RPG.Tools
             return result;
         }
 
-        /// <summary>
-        /// Возвращает список ID всех объектов, находящихся в указанной локации.
-        /// Учитывает объекты, привязанные к ячейкам локации, и их дочерние объекты.
-        /// </summary>
         private List<int> GetObjectsInLocation(LocationData loc, WorldState world)
         {
             var allowedIds = new HashSet<int>();
             var locCellIndices = new HashSet<string>(loc.GetCellIndices());
-
-            // 1. Находим корневые объекты, которые находятся в ячейках, принадлежащих локации
+            
             foreach (var obj in world.Objects)
             {
                 if (obj.CellIndices != null && obj.CellIndices.Any(c => locCellIndices.Contains(c)))
@@ -256,16 +235,14 @@ namespace RPG.Tools
                     allowedIds.Add(obj.Id);
                 }
             }
-
-            // 2. Итеративно добавляем дочерние объекты (иерархия)
-            // Если родитель объекта уже в списке разрешенных, то и сам объект добавляется
+            
             bool addedNew;
             do
             {
                 addedNew = false;
                 foreach (var obj in world.Objects)
                 {
-                    if (allowedIds.Contains(obj.Id)) continue; // Уже добавлен
+                    if (allowedIds.Contains(obj.Id)) continue;
 
                     if (obj.ParentObjectId.HasValue && allowedIds.Contains(obj.ParentObjectId.Value))
                     {
@@ -280,25 +257,19 @@ namespace RPG.Tools
 
         private async Task<string> HandleVectorSearch(string query, SearchType type, List<int> allowedIds = null)
         {
-            // 1. Поиск по базе с опциональной фильтрацией по ID
             var results = await StateManager.Instance.VectorDB.Search(query, type, limit: 5, allowedIds: allowedIds);
-
-            // Фильтруем события, которые уже были извлечены (чтобы не дублировать контекст)
             if (type == SearchType.Event)
             {
                 results = results.Where(r => !_extractedEventIndices.Contains(r.Id)).ToList();
             }
 
             if (results.Count == 0) return "No matches found in VectorDB.";
-
-            // Если результат один - возвращаем сразу
             if (results.Count == 1)
             {
                 return await FetchEntityById(results[0].Id, type);
             }
-
-            // 2. Селектор (LMM выбирает лучший вариант из найденных кандидатов)
-            string candidatesJson = JsonUtils.Serialize(results.Select(r => new { id = r.Id, content = r.Content, score = r.HybridScore }));
+            
+            var candidatesJson = JsonUtils.Serialize(results.Select(r => new { id = r.Id, content = r.Content, score = r.HybridScore }));
             
             var request = new LmmRequest
             {
@@ -350,7 +321,6 @@ namespace RPG.Tools
 
         private async Task<string> GenerateFinalResponse()
         {
-            // Формируем финальный ответ по запросу пользователя на основе всей истории
             var request = new LmmRequest
             {
                 SystemInstruction = PromptLibrary.Instance.GetPrompt(PromptType.QueryFinalizer),
@@ -363,19 +333,19 @@ namespace RPG.Tools
 
         private void ProcessFinalResult(string finalJson)
         {
-            string finalResultString = "";
+            var finalResultString = "";
 
-            if (JsonUtils.TryDeserialize<FinalResponse>(finalJson, out var response) && response.Result != null)
+            if (JsonUtils.TryDeserialize<FinalResponse>(finalJson, out var response))
             {
-                finalResultString = response.Result.ToString();
-                if (response.Result is System.Text.Json.JsonElement element)
+                try
                 {
-                    finalResultString = element.ToString();
+                    finalResultString = response.Result.GetRawText();
                 }
-            }
-            else
-            {
-                finalResultString = finalJson;
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
 
             var container = new ToolResponseContainer
@@ -390,6 +360,8 @@ namespace RPG.Tools
                 }
             };
 
+            LmmFactory.Instance.GetProvider(LmmModelType.Fast).PrintTokens();
+            LmmFactory.Instance.GetProvider(LmmModelType.Smart).PrintTokens();
             OnUpdate?.Invoke("✅ Query Complete.");
             OnUpdate?.Invoke(finalResultString);
             OnComplete?.Invoke(JsonUtils.Serialize(container));

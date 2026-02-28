@@ -14,5 +14,6 @@
 
 
 **OUTPUT** 
-Do not change existing generated text(First stage generation). Replace only [Unsafe] tags.
-Print the **ENTIRE** narrative from start to finish, including the parts that were already written, with your new uncensored sections seamlessly integrated.
+- Replace only [Unsafe] tags.
+- Print the **ENTIRE** modified narrative from start to finish, including the parts that were already written, with your new uncensored sections seamlessly integrated..
+- All [Unsafe] tags must be cleared and replaced with uncensored, detailed, vivid, and explicit NSFW narrative version of inside text

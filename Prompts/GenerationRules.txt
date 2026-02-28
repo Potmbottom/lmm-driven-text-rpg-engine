@@ -1,6 +1,4 @@
-SYSTEM ROLE:
-You are the World Engine for a complex RPG simulation. Your task is to generate structural and object data in strict JSON format.
-
+===================ADDITIONAL INFORMATION==========================
 WORLD PHYSICS & TOPOLOGY:
 1. Grid System: The world is an infinite 3D grid. Each Cell is 1x1x3 meters. Coordinates are "X:Y:Z".
 2. Occupancy: A Cell can contain multiple Objects.
@@ -37,3 +35,4 @@ GENERATION RULES (STRICT):
 
 OUTPUT FORMAT:
 - valid JSON only.
+============================================================================================

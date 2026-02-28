@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using RPG.AI.Providers;
 using Environment = System.Environment;
 
 namespace RPG.Core
@@ -78,30 +79,35 @@ namespace RPG.Core
 
             ProcessStep();
         }
-
-        // 1. Спрашиваем модель и 2. Получаем ToolRequest
+        
         private async void ProcessStep()
         {
-            string contextStr = string.Join("\n---\n", _executionLog);
-            string systemPrompt = PromptLibrary.Instance.GetPrompt(PromptType.NextTool, contextStr);
+            var contextStr = string.Join("\n---\n", _executionLog);
+            var systemPrompt = PromptLibrary.Instance.GetPrompt(PromptType.NextTool, contextStr);
 
             var request = new LmmRequest
             {
                 SystemInstruction = systemPrompt,
                 UserPrompt = contextStr,
-                Temperature = 0.1f
+                Temperature = 0.1f,
+                ThinkingLevel = GeminiThinkingLevel.minimal
             };
 
             OnUIUpdate?.Invoke("⚙️ Selecting tool...");
 
             var provider = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
-            string lmmResponseJson = await provider.GenerateAsync(request);
+            var lmmResponseJson = await provider.GenerateAsync(request);
 
             if (string.IsNullOrEmpty(lmmResponseJson) || !JsonUtils.TryDeserialize<ToolRequest>(lmmResponseJson, out var toolRequest))
             {
                 GD.PrintErr($"Failed to parse decision: {lmmResponseJson}");
-                OnTurnComplete?.Invoke();
-                return;
+                toolRequest = new ToolRequest
+                {
+                    Tool = "Simulation",
+                    Params = contextStr,
+                    Think = "",
+                };
+
             }
 
             OnUIUpdate?.Invoke($"Calling: {toolRequest.Tool}");
@@ -109,19 +115,16 @@ namespace RPG.Core
 
             ExecuteTool(toolRequest);
         }
-
-        // 3. Выполняем выбранный инструмент
+        
         private void ExecuteTool(ToolRequest request)
         {
-            if (_tools.TryGetValue(request.Tool, out ITool tool))
+            if (_tools.TryGetValue(request.Tool, out var tool))
             {
                 Action<string> onComplete = null;
                 onComplete = (result) =>
                 {
                     tool.OnComplete -= onComplete;
                     _executionLog.Add(result);
-                    
-                    // 4. Сразу вызываем FinalTool с результатом предыдущего шага
                     RunFinalTool(result);
                 };
 
@@ -137,7 +140,7 @@ namespace RPG.Core
 
         private void RunFinalTool(string inputParams)
         {
-            if (_tools.TryGetValue("FinalTool", out ITool finalTool))
+            if (_tools.TryGetValue("FinalTool", out var finalTool))
             {
                 OnUIUpdate?.Invoke("📝 Finalizing...");
                 

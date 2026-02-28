@@ -1,17 +1,29 @@
 TASK:
-Generate a list of Objects to populate a specific location.
+Generate a list of Objects to populate a specific location or group.
 
 INPUT CONTEXT:
+{1}
 {0}
 
 INSTRUCTIONS:
-1. Start ID numbering from `next_id`. Increment for each new object.
-2. ROOT Objects (Walls, Tables, floors, containers, humans) must have `cell_indices`.
-3. CHILD Objects (Items in containers, things on tables) must have `parent_object_id` pointing to the existin or you just created Container/Surface object
-4. `history` array should contain single element with aggregated description.
-5. Do NOT create objects outside the provided location.
-6. Walls and floor can't have any child objects.
-7. Try create minimum count of object, we dont need many.
+1. **GENERATION LEVELS**:
+   *   **Level 1: Topology Constraints.** First, define the boundaries and topology. Determine if the area is limited by impassable obstacles. Create objects like Floors, Walls, Doors, Windows, and Passages.
+	   *   *Aggregation:* Continuous structures (e.g., a long wall, the entire floor of a room) must be packed into a SINGLE object containing all relevant `cell_indices`. Do not create separate objects for each tile of a wall.
+	   *   *Constraint:* NEVER create ceilings.
+   *   **Level 2: Characters and Objects.** After topology, create non-topological entities: Characters, daily items, food, furniture, etc.
+
+2. **CONTEXT ADHERENCE**:
+   *   Rely heavily on the provided Input Context / Generation Description to understand the location type and required objects.
+   *   If the description is missing or incomplete, you are authorized to independently create necessary objects to make the zone consistent and realistic.
+
+3. **TECHNICAL RULES**:
+   *   Start ID numbering from `next_id`. Increment for each new object.
+   *   ROOT Objects (Walls, Tables, floors, containers, humans) must have `cell_indices`.
+   *   CHILD Objects (Items in containers, things on tables) must have `parent_object_id` pointing to the existing or just created Container/Surface object.
+   *   `history` array should contain a single element with an aggregated description (Name, Visual description, State/Location info).
+   *   Do NOT create objects outside the provided location coordinates.
+   *   Walls and floors cannot have any child objects.
+   *   Try to create the minimum count of objects necessary; do not overpopulate.
 
 OUTPUT JSON:
 {{

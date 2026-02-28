@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RPG.AI.Providers;
 using RPG.Core.Helpers;
 
 namespace RPG.Tools
@@ -24,18 +25,19 @@ namespace RPG.Tools
         public event Action<string> OnFail;
 
         private WorldState _worldState;
-
-        // Working copies of data
+        
         private List<ObjectData> _cachedObjects;
         private List<LocationData> _cachedLocations;
-
-        // Snapshots for change tracking
+        
         private Dictionary<int, string> _initialObjectSnapshots;
         private Dictionary<int, string> _initialLocationSnapshots;
 
         private List<string> _aggregatedLog = new();
         private List<SimulationResponse> _structuredOutput = new();
         private QueryMetaData _currentMetaData; 
+        
+        private List<string> _structuredOutputTruncated = new();
+        private List<int> _structuredObjectsIds = new();
         
         private const int HISTORY_CONTEXT_DEPTH = 3;
 
@@ -76,6 +78,8 @@ namespace RPG.Tools
         {
             _aggregatedLog.Clear();
             _structuredOutput.Clear();
+            _structuredObjectsIds.Clear();
+            _structuredOutputTruncated.Clear();
             
             _worldState = StateManager.Instance.CurrentWorld;
             _cachedObjects = new List<ObjectData>(_worldState.Objects);
@@ -84,7 +88,7 @@ namespace RPG.Tools
             _initialObjectSnapshots = _cachedObjects.ToDictionary(o => o.Id, JsonUtils.Serialize);
             _initialLocationSnapshots = _cachedLocations.ToDictionary(l => l.Id, JsonUtils.Serialize);
             
-            metaData.SimulationStartTime = _worldState.GetCurrentWorldTime();
+            metaData.SimulationStartTime = WorldStateHelper.GetCurrentWorldTime(_worldState.Locations);
             _currentMetaData = metaData;
             
             _aggregatedLog.Add(JsonUtils.Serialize(_currentMetaData));
@@ -110,7 +114,8 @@ namespace RPG.Tools
             var queryInput = new
             {
                 queries = contextRes.Queries,
-                format = "{ \"location_ids\": [int] } // Return a SINGLE JSON object merging ALL unique location IDs."
+                notes = "Your final goal is to find locations, do not dig deep to find objects in already investigated locations",
+                format = "{ \"location_ids\": [int] } // Return a SINGLE JSON object merging ALL unique location IDs. JSON response format : { array[int] }"
             };
 
             var tcs = new TaskCompletionSource<string>();
@@ -123,7 +128,7 @@ namespace RPG.Tools
             try
             {
                 QueryTool.Call(JsonUtils.Serialize(queryInput));
-                string queryJson = await tcs.Task;
+                var queryJson = await tcs.Task;
 
                 if (JsonUtils.TryDeserialize<ToolResponseContainer>(queryJson, out var container) &&
                     JsonUtils.TryDeserialize<LocationSearchResult>(container.Result?.Temporary?.Result, out var locRes))
@@ -142,7 +147,7 @@ namespace RPG.Tools
         
         private string CalculateTimeParams(List<LocationData> locations)
         {
-            string oldest = _currentMetaData.SimulationStartTime;
+            var oldest = _currentMetaData.SimulationStartTime;
             foreach (var location in locations)
             {
                 oldest = TimeHelper.GetMin(oldest, location.LastUpdateTime);
@@ -153,52 +158,56 @@ namespace RPG.Tools
 
         private async Task RunSimulationLoop(List<int> activeLocIds)
         {
-            int safety = 0;
-            bool running = true;
+            var safety = 0;
+            var running = true;
 
             while (running && safety++ < 4)
             {
                 var activeLocations = _cachedLocations.Where(data => activeLocIds.Contains(data.Id)).ToList();
-                var areaResult = WorldStateHelper.GetExtendedArea(activeLocations, 12, _cachedLocations);
+                var areaResult = WorldStateHelper.GetExtendedArea(activeLocations, _cachedLocations);
                 var currentSimTime = CalculateTimeParams([..activeLocations]);
                 
                 List<string> stepRequestLog = [];
                 Image currentMap = null;
                 List<string> recentHistory = [];
-                string context = "";
+                var context = "";
+                var model = LmmModelType.Fast;
 
                 var catchUp = TimeHelper.Compare(currentSimTime, _currentMetaData.SimulationStartTime) < 0;
                 
                 if (catchUp)
                 {
                     OnUpdate?.Invoke($"⚙️ Syncing Step {safety} (Time: {currentSimTime})...");
+
+                    var catchUpContext = activeLocations.Where(data =>
+                        TimeHelper.Compare(data.LastUpdateTime, _currentMetaData.SimulationStartTime) < 0);
                     
                     context = SimulationHelper.BuildContext(
-                        [..areaResult.Locations, ..activeLocations], //context
-                        activeLocations.Where(data => TimeHelper.Compare(data.LastUpdateTime, _currentMetaData.SimulationStartTime) < 0).Select(data => data.Id).ToHashSet(), //to show
+                        catchUpContext, //context
+                        catchUpContext.Select(data => data.Id).ToHashSet(), //to show
                         _cachedObjects,
                         new QueryMetaData
                         {
                             SimulationStartTime = currentSimTime,
-                            Info = _currentMetaData.Info,
                             TargetSimulationDuration = TimeHelper.SubtractDuration(_currentMetaData.SimulationStartTime, currentSimTime),
-                            UserQuery = "SYSTEM: The world state is lagging behind. Simulate background events, physics, and NPC schedules to sync with the timeline."
+                            UserQuery = "The world state is lagging behind. Simulate only valuable background events, physics, and NPC schedules to sync with the timeline." +
+                                        "Do not simulate not important things, ignore it. If no valuable actions to simulate return empty Action array."
                         },
                         recentHistory,
                         stepRequestLog);
-                    currentMap = await MapGen.GenerateMap(activeLocations, _cachedLocations);
+                    model = LmmModelType.Fast;
                 }
                 else
                 {
                     OnUpdate?.Invoke($"⚙️ Interaction Step {safety} (Time: {currentSimTime})...");
-                    stepRequestLog = _aggregatedLog;
+                    stepRequestLog = _aggregatedLog[1..];
                     recentHistory = _worldState.History.Texts
                         .TakeLast(HISTORY_CONTEXT_DEPTH)
                         .Select(t => t.Text)
                         .ToList();
                     context = SimulationHelper.BuildContext(
-                        [..areaResult.Locations, ..activeLocations], //context
-                        activeLocations.Select(data => data.Id).ToHashSet(), //to show
+                        [..areaResult.Locations, ..activeLocations],
+                        activeLocations.Select(data => data.Id).ToHashSet(),
                         _cachedObjects,
                         _currentMetaData,
                         recentHistory,
@@ -206,13 +215,26 @@ namespace RPG.Tools
                     currentMap = await MapGen.GenerateMap(activeLocations, _cachedLocations);
                 }
                 
-                var response = await CallLmm(context, currentMap);
-                _currentMetaData.SimulationStartTime = response.Structured.Last().Time;
+                var response = await CallLmm(context, currentMap, model);
                 _structuredOutput.Add(response);
+                
                 foreach (var step in response.Structured)
                 {
-                    SimulationHelper.ApplyActions(step.Actions, _cachedObjects, _cachedLocations);
+                    var res = SimulationHelper.ApplyActions(step.Actions, _cachedObjects, _cachedLocations);
+                    _structuredOutputTruncated.Add($"{res.Item2}\n{step.Time}");
+                    _structuredObjectsIds.AddRange(res.Item1);
+                    _structuredObjectsIds = _structuredObjectsIds.Distinct().ToList();
                 }
+
+                if (!catchUp)
+                {
+                    _currentMetaData.SimulationStartTime = response.Structured.Last().Time;
+                    if (_aggregatedLog.Count > 0)
+                    {
+                        _aggregatedLog[0] = JsonUtils.Serialize(_currentMetaData);
+                    }
+                }
+                
                 foreach (var location in _cachedLocations.Where(location => activeLocations.Contains(location)))
                 {
                     location.LastUpdateTime = _currentMetaData.SimulationStartTime;
@@ -220,26 +242,27 @@ namespace RPG.Tools
 
                 if (!catchUp)
                 {
-                    if (_aggregatedLog.Count > 0)
-                    {
-                        _aggregatedLog[0] = JsonUtils.Serialize(_currentMetaData);
-                    }
                     running = await HandleBreakPoint(response, activeLocIds);   
                 }
             }
+            
+            LmmFactory.Instance.GetProvider(LmmModelType.Fast).PrintTokens();
+            LmmFactory.Instance.GetProvider(LmmModelType.Smart).PrintTokens();
+            OnUpdate?.Invoke($"🔚 Simulation end at {_currentMetaData.SimulationStartTime}");
         }
 
-        private async Task<SimulationResponse> CallLmm(string context, Image map)
+        private async Task<SimulationResponse> CallLmm(string context, Image map, LmmModelType lmmModelType)
         {
             var req = new LmmRequest
             {
                 SystemInstruction = PromptLibrary.Instance.GetPrompt(PromptType.Simulation),
                 UserPrompt = context,
                 Images = new List<Image> { map },
-                Temperature = 0.5f
+                Temperature = 0.7f,
+                ThinkingLevel = GeminiThinkingLevel.low
             };
 
-            string json = await LmmFactory.Instance.GetProvider(LmmModelType.Smart).GenerateAsync(req);
+            var json = await LmmFactory.Instance.GetProvider(lmmModelType).GenerateAsync(req);
 
             if (JsonUtils.TryDeserialize<SimulationResponse>(json, out var res)) return res;
 
@@ -274,13 +297,11 @@ namespace RPG.Tools
 
                     var checkResult = SimulationHelper.PerformSkillCheck(data);
                     
-                    _aggregatedLog.Add($"Check '{checkResult.Reason}': {(checkResult.IsSuccess ? "Success" : "Failure")}");
-                    
-                    OnUpdate?.Invoke($"🎲 Check ({checkResult.Reason}): {(checkResult.IsSuccess ? "Success" : "Fail")}");
+                    _aggregatedLog.Add($"Check '{data.Reason}': Roll: {checkResult.roll} vs difficulty {data.Payload} = {(checkResult.IsSuccess ? "Success" : "Failure")}");
+                    OnUpdate?.Invoke($"🎲 Check '{data.Reason}': Roll: {checkResult.roll} vs difficulty {data.Payload} = {(checkResult.IsSuccess ? "Success" : "Failure")}");
                     return true;
 
                 default:
-                    // Default to continuing unless explicit stop or safety limit
                     return false;
             }
         }
@@ -289,7 +310,8 @@ namespace RPG.Tools
         {
             if (type == "RetrieveLocation")
             {
-                activeLocIds.Add(data.TargetId);
+                if(data.TargetId.HasValue)
+                    activeLocIds.Add(data.TargetId.Value);
                 return;
             }
             
@@ -299,21 +321,18 @@ namespace RPG.Tools
 
             try
             {
-                string generatorRequest = $"Generate Type: {type}. Target cell: {data.TargetCell ?? "none"} Target Index: {data.TargetId}. Full Context: {data.GenerationInformation}";
+                var generatorRequest = $"Generate Type: {type}. Target cell: {data.TargetCell ?? "none"} Target Index: {data.TargetId}. Full Context: {data.GenerationInformation}";
                 
                 GeneratorTool.CallWithContext([.._cachedLocations], [.._cachedObjects], generatorRequest);
-                string json = await tcs.Task;
+                var json = await tcs.Task;
 
                 if (JsonUtils.TryDeserialize<ToolResponseContainer>(json, out var res))
                 {
-                    bool dataAdded = false;
-
-                    // Handle New/Modified Locations
+                    var dataAdded = false;
                     if (res.Result.Mutable.Locations != null)
                     {
                         foreach (var newLoc in res.Result.Mutable.Locations)
                         {
-                            // If it's a new location or update
                             var existing = _cachedLocations.FirstOrDefault(l => l.Id == newLoc.Id);
                             if (existing == null)
                             {
@@ -323,14 +342,12 @@ namespace RPG.Tools
                             }
                             else
                             {
-                                // Merging logic if needed, or simple replace for simulation cache
-                                int idx = _cachedLocations.IndexOf(existing);
+                                var idx = _cachedLocations.IndexOf(existing);
                                 _cachedLocations[idx] = newLoc;
                             }
                         }
                     }
-
-                    // Handle Objects
+                    
                     if (res.Result.Mutable.Objects != null && res.Result.Mutable.Objects.Count > 0)
                     {
                         _cachedObjects.AddRange(res.Result.Mutable.Objects);
@@ -346,13 +363,13 @@ namespace RPG.Tools
         private async Task FinalizeSimulation(List<int> activeLocIds)
         {
             OnUpdate?.Invoke("✍️ Writing Narrative...");
-
-            var context = WorldStateHelper.FormatLocationData(_cachedLocations, _cachedObjects);
+            
+            var context = WorldStateHelper.FormatLocationData(_cachedLocations, _cachedObjects.Where(data => _structuredObjectsIds.Contains(data.Id)).ToList());
             var events = _worldState.History.Texts
                 .TakeLast(1);
     
             var preNarrativeData =
-                $"Last events{events}\nFull Execution Log:\n{JsonUtils.Serialize(_structuredOutput)}\nContext: {context}";
+                $"Last events{events}\nFull Execution Log:\n{string.Join("\n", _structuredOutputTruncated)}\nContext: {context}";
             var narrativeReq = new LmmRequest
             {
                 SystemInstruction = PromptLibrary.Instance.GetPrompt(PromptType.Narrative),
@@ -360,9 +377,9 @@ namespace RPG.Tools
                 Temperature = 0.7f
             };
 
-            string narrativeJson =
+            var narrativeJson =
                 await LmmFactory.Instance.GetProvider(LmmModelType.Smart).GenerateAsync(narrativeReq);
-            string narrativeText = JsonUtils.TryDeserialize<NarrativeResponse>(narrativeJson, out var nr)
+            var narrativeText = JsonUtils.TryDeserialize<NarrativeResponse>(narrativeJson, out var nr)
                 ? nr.Text
                 : "Narrative failed.";
 
@@ -371,7 +388,7 @@ namespace RPG.Tools
                 var unsafeNarrativeReq = new LmmRequest
                 {
                     SystemInstruction = PromptLibrary.Instance.GetPrompt(PromptType.UnsafeNarrative),
-                    UserPrompt = $"User request: {_currentMetaData.UserQuery}\n{preNarrativeData}\n First stage generation: {narrativeText}",
+                    UserPrompt = $"User request: {_currentMetaData.UserQuery}\nContext:{context}\n First stage generation: {narrativeText}",
                     Temperature = 0f,
                 };
 

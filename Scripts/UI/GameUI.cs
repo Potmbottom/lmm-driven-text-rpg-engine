@@ -37,7 +37,7 @@ namespace RPG.UI
 
         private void OnSendPressed()
         {
-            string text = _inputField.Text.Trim();
+            var text = _inputField.Text.Trim();
             if (string.IsNullOrEmpty(text)) return;
             
             AddMessageBubble(text, true);

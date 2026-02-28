@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RPG.Core;
 
 namespace RPG.Tools
 {
@@ -12,6 +13,7 @@ namespace RPG.Tools
     {
         [ExportCategory("Settings")]
         [Export] public int CellSize = 128;
+        [Export] public int BaseFontSize = 16; 
         [Export] public SubViewport TargetViewport;
         [Export] public Control ViewportRoot;
 
@@ -27,52 +29,47 @@ namespace RPG.Tools
             new Color("ff00ff"), // Magenta
         };
 
-        private Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
-
-        /// <summary>
-        /// Метод 1: Низкоуровневая генерация карты вокруг точки с конкретным набором данных.
-        /// </summary>
-        /// <param name="centerIndex">Центральная ячейка "X:Y:Z"</param>
-        /// <param name="sideLength">Длина стороны квадрата (в клетках)</param>
-        /// <param name="locationsToRender">Полный список локаций для рендера</param>
-        /// <param name="activeIds">Набор ID активных локаций</param>
+        private readonly Dictionary<int, Color> _colorCache = new Dictionary<int, Color>();
+        
         public async Task<Image> GenerateMapAround(string centerIndex, int sideLength, 
             IEnumerable<LocationData> locationsToRender, 
             HashSet<int> activeIds = null)
         {
-            if (TargetViewport == null || ViewportRoot == null) return null;
-
+            if (TargetViewport == null || ViewportRoot == null) 
+            {
+                GD.PrintErr("MapGenerator: TargetViewport or ViewportRoot is missing.");
+                return null;
+            }
+            
             foreach (var child in ViewportRoot.GetChildren()) child.QueueFree();
-
-            // 1. Строим карту локаций
             var cellToLocationId = BuildLocationMap(locationsToRender);
-
-            // 2. Парсим центр
-            var centerCoord = ParseStringCoordinate(centerIndex);
-    
-            // 3. Генерируем сетку
+            var centerCoord = GridCoordinate.ParseVector(centerIndex);
             var (bounds, gridMap) = GenerateGridSquare(centerCoord, sideLength);
-
-            // ИЗМЕНЕНИЕ 1: Убираем "+ 2", ставим размер ровно по границам
-            TargetViewport.Size = new Vector2I(bounds.Size.X * CellSize, bounds.Size.Y * CellSize);
+            var calculatedFontSize = Mathf.Max(8, (int)(CellSize * 0.4f));
+            var thickBorder = Mathf.Max(1, CellSize / 16);
+            var thinBorder = 1;
+            var newSize = new Vector2I(bounds.Size.X * CellSize, bounds.Size.Y * CellSize);
+            TargetViewport.Size = newSize;
             TargetViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
 
             var drawBounds = new Rect2I(bounds.Position, bounds.Size);
-
-            // Функции доступа
-            int GetLocId(string idx) => cellToLocationId.ContainsKey(idx) ? cellToLocationId[idx] : -1;
+            int GetLocId(string idx) => cellToLocationId.GetValueOrDefault(idx, -1);
             bool IsOccupied(string idx) => cellToLocationId.ContainsKey(idx);
             bool IsActive(int id) => activeIds == null || activeIds.Contains(id);
 
-            // ИЗМЕНЕНИЕ 2: Убираем смещение (paddingOffset: Vector2I.Zero)
-            DrawMap(ViewportRoot, drawBounds, gridMap, GetLocId, IsOccupied, IsActive, paddingOffset: Vector2I.Zero);
+            DrawMap(ViewportRoot, drawBounds, gridMap, 
+                GetLocId, IsOccupied, IsActive, 
+                calculatedFontSize, thickBorder, thinBorder);
+            
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 
-            await ToSignal(GetTree(), "process_frame");
-            await ToSignal(GetTree(), "process_frame");
+            var texture = TargetViewport.GetTexture();
+            if (texture == null) return null;
 
-            var img = TargetViewport.GetTexture().GetImage();
+            var img = texture.GetImage();
 
-            if (AutoSave && img != null)
+            if (AutoSave && img != null && !img.IsEmpty())
             {
                 SaveMapToDisk(img);
             }
@@ -80,95 +77,66 @@ namespace RPG.Tools
             return img;
         }
 
-        /// <summary>
-        /// Метод 2. Создание карты на основе списка активных локаций с учетом контекста мира.
-        /// </summary>
-        public async Task<Image> GenerateMap(IEnumerable<LocationData> activeLocations, IEnumerable<LocationData> allWorldLocations)
+        public async Task<Image> GenerateMap(IEnumerable<LocationData> activeLocations,
+            IEnumerable<LocationData> allWorldLocations)
         {
-            if (activeLocations == null || !activeLocations.Any()) return null;
-            if (allWorldLocations == null) allWorldLocations = new List<LocationData>();
+            return await GenerateMap(activeLocations, allWorldLocations, Array.Empty<string>());
+        }
 
-            // Получаем расширенную область
-            var areaResult = WorldStateHelper.GetExtendedArea(activeLocations, 12, allWorldLocations.ToList());
+        public async Task<Image> GenerateMap(IEnumerable<LocationData> activeLocations, 
+            IEnumerable<LocationData> allWorldLocations, 
+            IEnumerable<string> additionalCellIndices, int minSize = 12)
+        {
+            allWorldLocations ??= new List<LocationData>();
 
+            var areaResult = WorldStateHelper.GetExtendedArea(activeLocations, additionalCellIndices, allWorldLocations.ToList());
             if (areaResult == null) return null;
 
-            // Собираем полный список локаций для рендера
             var combinedLocations = activeLocations.Concat(areaResult.Locations).ToList();
-
-            // ID активных локаций
             var activeIds = activeLocations.Select(l => l.Id).ToHashSet();
 
-            // areaResult.Radius содержит длину стороны (согласно задаче)
             return await GenerateMapAround(
                 areaResult.CenterCellIndex, 
-                areaResult.SideLength, 
+                areaResult.SideLength < minSize ? minSize : areaResult.SideLength, 
                 combinedLocations, 
                 activeIds
             );
         }
 
-        // --- Helpers ---
-
-        private Vector2I ParseStringCoordinate(string indexStr)
-        {
-            if (string.IsNullOrEmpty(indexStr)) return Vector2I.Zero;
-
-            var parts = indexStr.Split(':');
-            if (parts.Length >= 2)
-            {
-                if (int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y))
-                {
-                    return new Vector2I(x, y);
-                }
-            }
-            return Vector2I.Zero;
-        }
-
         private Dictionary<string, int> BuildLocationMap(IEnumerable<LocationData> locations)
         {
             var map = new Dictionary<string, int>();
+            if (locations == null) return map;
 
-            if (locations != null)
+            foreach (var loc in locations)
             {
-                foreach (var loc in locations)
+                foreach (var rawIndex in loc.GetCellIndices())
                 {
-                    foreach (var rawIndex in loc.GetCellIndices())
-                    {
-                        var vec = ParseStringCoordinate(rawIndex);
-                        string normalizedKey = $"{vec.X}:{vec.Y}";
-                        map[normalizedKey] = loc.Id;
-                    }
+                    var vec = GridCoordinate.ParseVector(rawIndex);
+                    map[$"{vec.X}:{vec.Y}"] = loc.Id;
                 }
             }
-
             return map;
         }
 
         private (Rect2I, Dictionary<Vector2I, string>) GenerateGridSquare(Vector2I center, int sideLength)
         {
             var map = new Dictionary<Vector2I, string>();
-            
-            // Вычисляем смещение от центра, чтобы получить квадрат со стороной sideLength
-            int offset = sideLength / 2;
-            
-            int minX = center.X - offset;
-            int maxX = minX + sideLength - 1; // -1, т.к. включительно
-            
-            int minY = center.Y - offset;
-            int maxY = minY + sideLength - 1;
+            var offset = sideLength / 2;
+            var minX = center.X - offset;
+            var maxX = minX + sideLength - 1;
+            var minY = center.Y - offset;
+            var maxY = minY + sideLength - 1;
 
-            for (int x = minX; x <= maxX; x++)
+            for (var x = minX; x <= maxX; x++)
             {
-                for (int y = minY; y <= maxY; y++)
+                for (var y = minY; y <= maxY; y++)
                 {
-                    var pos = new Vector2I(x, y);
-                    string indexStr = $"{x}:{y}"; 
-                    map[pos] = indexStr;
+                    map[new Vector2I(x, y)] = $"{x}:{y}";
                 }
             }
 
-            var bounds = new Rect2I(minX, minY, maxX - minX + 1, maxY - minY + 1);
+            var bounds = new Rect2I(minX, minY, sideLength, sideLength);
             return (bounds, map);
         }
 
@@ -181,64 +149,51 @@ namespace RPG.Tools
                 DirAccess.MakeDirRecursiveAbsolute(SaveDirectory);
             }
 
-            string fileName;
-            if (!string.IsNullOrEmpty(customName))
-            {
-                fileName = customName.EndsWith(".png") ? customName : $"{customName}.png";
-            }
-            else
-            {
-                string timestamp = Time.GetDatetimeStringFromSystem().Replace(":", "-").Replace(" ", "_");
-                fileName = $"map_{timestamp}.png";
-            }
+            var fileName = string.IsNullOrEmpty(customName) 
+                ? $"map_{Time.GetDatetimeStringFromSystem().Replace(":", "-").Replace(" ", "_")}.png"
+                : (customName.EndsWith(".png") ? customName : $"{customName}.png");
 
-            string fullPath = SaveDirectory;
-            if (!fullPath.EndsWith("/")) fullPath += "/";
-            fullPath += fileName;
-
-            Error err = img.SavePng(fullPath);
+            var fullPath = SaveDirectory.PathJoin(fileName);
+            var err = img.SavePng(fullPath);
             
             if (err == Error.Ok)
-            {
-                GD.Print($"✅ Map saved successfully: {fullPath}");
-            }
+                GD.Print($"✅ Map saved: {fullPath} ({img.GetWidth()}x{img.GetHeight()})");
             else
-            {
                 GD.PrintErr($"❌ Failed to save map to {fullPath}. Error: {err}");
-            }
         }
 
         private void DrawMap(Control root, Rect2I logicBounds, Dictionary<Vector2I, string> gridMap, 
                              Func<string, int> getLocationId, Func<string, bool> isOccupied,
                              Func<int, bool> isLocationActive,
-                             Vector2I paddingOffset)
+                             int fontSize, int thickBorder, int thinBorder)
         {
             var bg = new ColorRect { Color = Colors.Black };
             bg.SetAnchorsPreset(Control.LayoutPreset.FullRect);
             root.AddChild(bg);
 
-            int logicMinX = logicBounds.Position.X;
-            int logicMaxX = logicBounds.Position.X + logicBounds.Size.X;
-            int logicMinY = logicBounds.Position.Y;
-            int logicMaxY = logicBounds.Position.Y + logicBounds.Size.Y;
+            var logicMinX = logicBounds.Position.X;
+            var logicMaxX = logicBounds.End.X;
+            var logicMinY = logicBounds.Position.Y;
+            var logicMaxY = logicBounds.End.Y;
+            var worldTopY = logicMaxY - 1;
 
-            int worldTopY = logicBounds.Position.Y + logicBounds.Size.Y - 1;
-
-            for (int x = logicMinX; x < logicMaxX; x++)
+            for (var x = logicMinX; x < logicMaxX; x++)
             {
-                for (int y = logicMinY; y < logicMaxY; y++)
+                for (var y = logicMinY; y < logicMaxY; y++)
                 {
                     var gridPos = new Vector2I(x, y);
 
-                    int relX = x - logicMinX;
-                    int relY = worldTopY - y; 
+                    var relX = x - logicMinX;
+                    var relY = worldTopY - y; 
 
-                    float screenX = (relX + paddingOffset.X) * CellSize;
-                    float screenY = (relY + paddingOffset.Y) * CellSize;
+                    float screenX = relX * CellSize;
+                    float screenY = relY * CellSize;
 
-                    string indexStr = gridMap.ContainsKey(gridPos) ? gridMap[gridPos] : null;
+                    var indexStr = gridMap.GetValueOrDefault(gridPos);
+                    
                     DrawCell(root, new Vector2(screenX, screenY), gridPos, indexStr, gridMap, 
-                        getLocationId, isOccupied, isLocationActive);
+                        getLocationId, isOccupied, isLocationActive, 
+                        fontSize, thickBorder, thinBorder);
                 }
             }
         }
@@ -246,105 +201,98 @@ namespace RPG.Tools
         private void DrawCell(Control root, Vector2 screenPos, Vector2I gridPos, string currentIndexStr, 
                             Dictionary<Vector2I, string> gridMap, 
                             Func<string, int> getLocationId, Func<string, bool> isOccupied,
-                            Func<int, bool> isLocationActive)
+                            Func<int, bool> isLocationActive,
+                            int fontSize, int thickBorder, int thinBorder)
         {
             var cellContainer = new Control();
             cellContainer.Position = screenPos;
             cellContainer.Size = new Vector2(CellSize, CellSize);
             root.AddChild(cellContainer);
 
-            bool currentOccupied = currentIndexStr != null && isOccupied(currentIndexStr);
-            int currentLocationId = currentOccupied ? getLocationId(currentIndexStr) : -1;
-            Color occupiedColor = currentOccupied ? GetLocationColor(currentLocationId) : Colors.White;
+            var currentOccupied = currentIndexStr != null && isOccupied(currentIndexStr);
+            var currentLocationId = currentOccupied ? getLocationId(currentIndexStr) : -1;
             
-            bool isActive = isLocationActive(currentLocationId);
-
+            var baseColor = currentOccupied ? GetLocationColor(currentLocationId) : Colors.White;
+            var isActive = isLocationActive(currentLocationId);
+            
             if (currentOccupied && !isActive)
             {
                 cellContainer.Modulate = new Color(1, 1, 1, 0.4f); 
             }
-
-            var label = new Label();
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-            label.VerticalAlignment = VerticalAlignment.Center;
-            label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            label.ZIndex = 3; 
-            label.AddThemeColorOverride("font_color", Colors.White);
             
-            if (currentOccupied)
+            if (fontSize > 4)
             {
-                if (isActive)
+                var label = new Label
                 {
-                    label.Text = $"{gridPos.X}:{gridPos.Y}";
-                    label.AddThemeFontSizeOverride("font_size", 16);
-                }
-                else
-                {
-                    label.Text = $"ID = {currentLocationId}";
-                    label.AddThemeFontSizeOverride("font_size", 14);
-                }
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    ZIndex = 3,
+                    Text = currentOccupied 
+                        ? (isActive ? $"{gridPos.X}:{gridPos.Y}" : $"{currentLocationId}") 
+                        : $"{gridPos.X}:{gridPos.Y}"
+                };
+                
+                label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                label.AddThemeColorOverride("font_color", Colors.White);
+                label.AddThemeFontSizeOverride("font_size", fontSize);
+                label.ClipText = true; 
+                
+                cellContainer.AddChild(label);
             }
-            else
-            {
-                label.Text = $"{gridPos.X}:{gridPos.Y}";
-                label.AddThemeFontSizeOverride("font_size", 16);
-            }
-
-            cellContainer.AddChild(label);
-
-            CheckBorder(cellContainer, Side.Top,    gridPos, new Vector2I(gridPos.X, gridPos.Y + 1), currentOccupied, currentLocationId, occupiedColor, gridMap, getLocationId, isOccupied);
-            CheckBorder(cellContainer, Side.Bottom, gridPos, new Vector2I(gridPos.X, gridPos.Y - 1), currentOccupied, currentLocationId, occupiedColor, gridMap, getLocationId, isOccupied);
-            CheckBorder(cellContainer, Side.Left,   gridPos, new Vector2I(gridPos.X - 1, gridPos.Y), currentOccupied, currentLocationId, occupiedColor, gridMap, getLocationId, isOccupied);
-            CheckBorder(cellContainer, Side.Right,  gridPos, new Vector2I(gridPos.X + 1, gridPos.Y), currentOccupied, currentLocationId, occupiedColor, gridMap, getLocationId, isOccupied);
+            CheckBorder(cellContainer, Side.Top, new Vector2I(gridPos.X, gridPos.Y + 1), currentOccupied, currentLocationId, baseColor, gridMap, getLocationId, isOccupied, thickBorder, thinBorder);
+            CheckBorder(cellContainer, Side.Bottom, new Vector2I(gridPos.X, gridPos.Y - 1), currentOccupied, currentLocationId, baseColor, gridMap, getLocationId, isOccupied, thickBorder, thinBorder);
+            CheckBorder(cellContainer, Side.Left, new Vector2I(gridPos.X - 1, gridPos.Y), currentOccupied, currentLocationId, baseColor, gridMap, getLocationId, isOccupied, thickBorder, thinBorder);
+            CheckBorder(cellContainer, Side.Right, new Vector2I(gridPos.X + 1, gridPos.Y), currentOccupied, currentLocationId, baseColor, gridMap, getLocationId, isOccupied, thickBorder, thinBorder);
         }
 
         private enum Side { Top, Bottom, Left, Right }
 
-        private void CheckBorder(Control parent, Side side, 
-                               Vector2I currentPos, Vector2I neighborPos, 
+        private void CheckBorder(Control parent, Side side, Vector2I neighborPos, 
                                bool currentOccupied, int currentLocId, Color currentColor,
                                Dictionary<Vector2I, string> gridMap, 
-                               Func<string, int> getLocationId, Func<string, bool> isOccupied)
+                               Func<string, int> getLocationId, Func<string, bool> isOccupied,
+                               int thick, int thin)
         {
-            string neighborIndexStr = gridMap.ContainsKey(neighborPos) ? gridMap[neighborPos] : null;
+            var neighborIndexStr = gridMap.GetValueOrDefault(neighborPos);
             
-            bool neighborOccupied = false;
-            int neighborLocId = -1;
+            var neighborOccupied = false;
+            var neighborLocId = -1;
 
             if (neighborIndexStr != null)
             {
                 neighborOccupied = isOccupied(neighborIndexStr);
                 neighborLocId = neighborOccupied ? getLocationId(neighborIndexStr) : -1;
             }
-
+            
             if (currentOccupied)
             {
                 if (!neighborOccupied || neighborLocId != currentLocId)
                 {
-                    CreateBorderLine(parent, side, currentColor, 4, 2); 
+                    CreateBorderLine(parent, side, currentColor, thick, 2); 
                 }
             }
             else 
             {
                 if (!neighborOccupied)
                 {
-                    CreateBorderLine(parent, side, Colors.White, 1, 1); 
+                    CreateBorderLine(parent, side, Colors.White, thin, 1); 
                 }
             }
         }
 
         private void CreateBorderLine(Control parent, Side side, Color color, int thickness, int zIndex)
         {
-            var lineNode = new ColorRect();
-            lineNode.Color = color;
-            lineNode.ZIndex = zIndex;
+            var lineNode = new ColorRect
+            {
+                Color = color,
+                ZIndex = zIndex
+            };
             parent.AddChild(lineNode);
-            lineNode.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-
+            
             switch (side)
             {
                 case Side.Top:
-                    lineNode.Position = new Vector2(0, 0);
+                    lineNode.Position = Vector2.Zero;
                     lineNode.Size = new Vector2(CellSize, thickness);
                     break;
                 case Side.Bottom:
@@ -352,7 +300,7 @@ namespace RPG.Tools
                     lineNode.Size = new Vector2(CellSize, thickness);
                     break;
                 case Side.Left:
-                    lineNode.Position = new Vector2(0, 0);
+                    lineNode.Position = Vector2.Zero;
                     lineNode.Size = new Vector2(thickness, CellSize);
                     break;
                 case Side.Right:

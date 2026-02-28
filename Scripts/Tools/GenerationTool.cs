@@ -6,9 +6,11 @@ using RPG.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using RPG.AI.Providers;
 using RPG.Core.Helpers;
 
 namespace RPG.Tools
@@ -37,10 +39,8 @@ namespace RPG.Tools
                 switch (request.Type.ToLower())
                 {
                     case "location":
-                        await HandleLocationGeneration(request, contextLocations, contextObjects);
-                        break;
                     case "group":
-                        await HandleGroupGeneration(request, contextLocations, contextObjects);
+                        await HandleLocationGeneration(request, contextLocations, contextObjects);
                         break;
                     case "object":
                         await HandleObjectGeneration(request);
@@ -68,154 +68,151 @@ namespace RPG.Tools
             OnUpdate?.Invoke("🧠 Parsing intent...");
             var prompt = PromptLibrary.Instance.GetPrompt(PromptType.GenerationQueryParser, input);
             var lmm = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
-            var jsonResponse = await lmm.GenerateAsync(new LmmRequest { UserPrompt = prompt });
+            var jsonResponse = await lmm.GenerateAsync(new LmmRequest { UserPrompt = prompt, ThinkingLevel = GeminiThinkingLevel.low});
 
             if (JsonUtils.TryDeserialize<GenerationRequest>(jsonResponse, out var aiResult))
                 return aiResult;
 
             throw new FormatException("Failed to parse generation request.");
         }
-
+        
         private async Task HandleLocationGeneration(GenerationRequest req, List<LocationData> contextLocations, List<ObjectData> contextObjects)
         {
-            OnUpdate?.Invoke($"🏗️ Generating Location: {req.Description}...");
-            
-            string startCell = FindStartingCell(req.Cell, contextLocations);
-            var contextMap = await MapGen.GenerateMapAround(startCell, 12, contextLocations, contextLocations.Select(data => data.Id).ToHashSet());
-            
-            OnUpdate?.Invoke($"📍 Find center {startCell}");
-            OnUpdate?.Invoke("📐 Planning topology...");
-            
-            var topologyPrompt = BuildPrompt(PromptType.GenerationLocation, 
-                JsonUtils.Serialize(new { anchor_cell = startCell, description = req.Description }));
-            var topology = await ExecuteLmmRequest<LocationData>(topologyPrompt, contextMap);
-            
-            OnUpdate?.Invoke("🧱 Building world...");
-            var structureObjects = await PopulateLocationWithBase(req.Description, contextLocations, contextObjects, topology);
-            contextObjects.AddRange(structureObjects);
-            var contentObjects = await PopulateLocationWithObjects(req.Description, contextLocations, contextObjects, topology);
-            contextObjects.AddRange(contentObjects);
-            
-            var totalObjects = new List<ObjectData>();
-            totalObjects.AddRange(structureObjects);
-            totalObjects.AddRange(contextObjects);
-            
-            OnUpdate?.Invoke("📝 Writing descriptions...");
-            var finalGroups = await GenerateGroupDescriptions(topology.Groups, totalObjects);
-
-            var newLocation = new LocationData
+            var locations = new List<LocationData>();
+            if (req.Type == "group")
             {
-                Id = StateManager.Instance.CurrentWorld.GetNextId(),
-                Description = topology.Description,
-                Groups = finalGroups,
-                LastUpdateTime = StateManager.Instance.CurrentWorld.GetCurrentWorldTime()
-            };
+                var targetLoc = req.Id == null ? 
+                    WorldStateHelper.FindNearestLocation(req.TargetCells.First(), contextLocations) : 
+                    contextLocations.FirstOrDefault(l => l.Id == req.Id);
+                locations.Add(targetLoc);
+            }            
+            var data = await FillGenerationInput(locations, req, contextLocations);
+            var locationsContext = WorldStateHelper.FormatLocationData(data.locations, contextObjects);
+            var topologyPrompt = BuildPrompt(PromptType.GenerationLocation,
+                $"Target cell: {string.Join(" ", data.cells)} \n Location context: {locationsContext} \n Generation description: {req.Description}");
+            var topology = await ExecuteLmmRequest<LocationData>(topologyPrompt, data.contextMap);
+            if (req.Type == "location")
+            {
+                topology.Id = StateManager.Instance.CurrentWorld.GetNextId();
+                topology.LastUpdateTime = WorldStateHelper.GetCurrentWorldTime(contextLocations);
+            }
+            
+            var structureObjects = await PopulateLocation(req.Description, contextLocations, contextObjects, topology);
+            await AssignKeysToEntities(new List<LocationData> { topology }, structureObjects);
+
+            if (req.Type == "group")
+            {
+                topology.Groups.AddRange(locations[0].Groups);
+                topology.Id = locations[0].Id;
+                topology.LastUpdateTime = locations[0].LastUpdateTime;
+            }
             
             FinishTurn(new MutableData
-            {
-                Locations = { newLocation },
-                Objects = totalObjects,
-            }, $"Created location {newLocation.Id}: {req.Description}");
+                {
+                    Locations = { topology },
+                    Objects = structureObjects,
+                }, $"Created {req.Type} Id: {topology.Id}: {req.Description}");
         }
-
-        private async Task HandleGroupGeneration(GenerationRequest req, List<LocationData> contextLocations, List<ObjectData> contextObjects)
+        
+        private async Task<(Image contextMap, List<LocationData> locations, List<string> cells)> 
+            FillGenerationInput(List<LocationData> existLocations, GenerationRequest req, List<LocationData> contextLocations)
         {
-            var targetLoc = req.Id == null ? 
-                WorldStateHelper.FindNearestLocation(req.Cell, contextLocations) : 
-                contextLocations.FirstOrDefault(l => l.Id == req.Id);
-
-            OnUpdate?.Invoke($"🏗️ Adding Group to Location {targetLoc.Id}...");
-            string startCell = FindNeighborCellForLocation(targetLoc, contextLocations);
-            var contextMap = await MapGen.GenerateMapAround(startCell, 12, contextLocations, contextLocations.Select(data => data.Id).ToHashSet());
-            
-            OnUpdate?.Invoke("📐 Planning group topology...");
-            var topologyPrompt = BuildPrompt(PromptType.GenerationGroup,
-                JsonUtils.Serialize(new { location_id = targetLoc.Id, anchor_cell = startCell, description = req.Description }));
-            var topology = await ExecuteLmmRequest<GroupResponse>(topologyPrompt, contextMap);
-
-            OnUpdate?.Invoke("🧱 Furnishing group...");
-            targetLoc.Groups.AddRange(topology.Groups);
-            var structureObjects = await PopulateLocationWithBase(req.Description, contextLocations, contextObjects, targetLoc);
-            contextObjects.AddRange(structureObjects);
-            var contentObjects = await PopulateLocationWithObjects(req.Description, contextLocations, contextObjects, targetLoc);
-
-            var allObjects = new List<ObjectData>();
-            allObjects.AddRange(structureObjects);
-            allObjects.AddRange(contentObjects);
-
-            OnUpdate?.Invoke("📝 Describing group...");
-            var describedGroups = await GenerateGroupDescriptions(targetLoc.Groups, allObjects);
-            targetLoc.Groups = describedGroups;
-
-            FinishTurn(new MutableData
+            Image contextMap;
+            var cells = new List<string>();
+            if (req.TargetCells?.Count == 0 && req.TargetLocations?.Count == 0)
             {
-                Locations = [targetLoc],
-                Objects = allObjects
-            }, $"Added group to Location {targetLoc.Id}");
+                var tuple = FindStartingCell(contextLocations);
+                existLocations.AddRange(contextLocations.Where(data => tuple.LocationId.Contains(data.Id)));
+                var active = contextLocations == null || contextLocations.Count == 0
+                    ? []
+                    : contextLocations.Select(data => data.Id).ToHashSet();
+                contextMap = await MapGen.GenerateMapAround(tuple.Cell, 12, contextLocations, active);
+            }
+            else
+            {
+                if (req is { TargetLocations.Count: > 0 })
+                {
+                    existLocations.AddRange(contextLocations.Where(data => req.TargetLocations.Contains(data.Id)));
+                }
+
+                if (req is { TargetCells.Count: > 0 })
+                {
+                    cells.AddRange(req.TargetCells);
+                }
+                contextMap = await MapGen.GenerateMap(existLocations, contextLocations, cells);   
+            }
+            
+            return (contextMap, existLocations, cells);
         }
 
         private async Task HandleObjectGeneration(GenerationRequest req)
         {
             OnUpdate?.Invoke($"📦 Generating Object(s): {req.Description}...");
-            bool hasCell = !string.IsNullOrEmpty(req.Cell);
-            bool hasId = req.Id.HasValue;
+            var hasCell = req.TargetCells.Count > 0 && !string.IsNullOrEmpty(req.TargetCells.First());
+            var hasId = req.Id.HasValue;
 
             if (hasCell && hasId)
                 throw new Exception("Ambiguous request: Both Cell and ID provided. Provide only one context.");
             if (!hasCell && !hasId)
                 throw new Exception("Context missing: Provide either Cell or Parent ID.");
 
-            string contextJson = hasCell
-                ? JsonUtils.Serialize(new { root_cell = req.Cell })
-                : JsonUtils.Serialize(new { parent_object_id = req.Id.Value });
-
+            var contextJson = hasCell ? $"Root cell: {req.TargetCells.First()}\n" : $"Parent object id: {req.Id}";
             var prompt = BuildPrompt(PromptType.GenerationObject,
-                JsonUtils.Serialize(new
-                {
-                    description = req.Description, context = contextJson,
-                    next_id = StateManager.Instance.CurrentWorld.GetNextId()
-                }));
+                $"Generation description: {req.Description}\nContext: {contextJson}\nNext id: {StateManager.Instance.CurrentWorld.GetNextId()}");
 
             var response = await ExecuteLmmRequest<ObjectsResponse>(prompt);
-            FinishTurn(new MutableData { Objects = response.Objects }, $"Generated objects: {req.Description}");
-        }
-
-        private async Task<List<ObjectData>> PopulateLocationWithBase(string description, List<LocationData> locationsContext,
-            List<ObjectData> objectsContext, LocationData newLocation)
-        {
-            var newDescription =
-                $"{description}\n Focus Only on BASE objects, floor, walls, windows, doors and etc(except ceiling). Assemble continuous walls in to single object.";
-            return await PopulateLocation(newDescription, locationsContext, objectsContext, newLocation);
+            await AssignKeysToEntities(new List<LocationData>(), response.Objects);
+            FinishTurn(new MutableData { Objects = response.Objects }, $"Generated objects: {response.Objects.Count}");
         }
         
-        private async Task<List<ObjectData>> PopulateLocationWithObjects(string description, List<LocationData> locationsContext,
-            List<ObjectData> objectsContext, LocationData newLocation)
+        private async Task AssignKeysToEntities(List<LocationData> locs, List<ObjectData> objs)
         {
-            var newDescription =
-                $"{description}\n Do not generate: floor, walls, windows, doors and etc";
-            return await PopulateLocation(newDescription, locationsContext, objectsContext, newLocation);
+            if (!locs.Any() && !objs.Any()) return;
+            
+            OnUpdate?.Invoke("🏷️ Assigning Identity Keys...");
+            var sb = new StringBuilder();
+            foreach(var l in locs) sb.AppendLine($"LOC:{l.Id} {l.Description}");
+            foreach(var o in objs) sb.AppendLine($"OBJ:{o.Id} {string.Join(" ", o.History)}");
+
+            var prompt = PromptLibrary.Instance.GetPrompt(PromptType.GenerationKeys, sb);
+            
+            var req = new LmmRequest { UserPrompt = prompt, Temperature = 0.1f };
+            var json = await LmmFactory.Instance.GetProvider(LmmModelType.Fast).GenerateAsync(req);
+            
+            if (JsonUtils.TryDeserialize<KeysGenerationResponse>(json, out var res) && res.Keys != null)
+            {
+                foreach (var kvp in res.Keys)
+                {
+                    var loc = locs.FirstOrDefault(l => l.Id == kvp.Key);
+                    if (loc != null) 
+                    {
+                        loc.Keys = kvp.Value;
+                        continue;
+                    }
+                    
+                    var obj = objs.FirstOrDefault(o => o.Id == kvp.Key);
+                    if (obj != null)
+                    {
+                        obj.Keys = kvp.Value;
+                    }
+                }
+            }
         }
         
         private async Task<List<ObjectData>> PopulateLocation(string description, List<LocationData> locationsContext,
             List<ObjectData> objectsContext, LocationData newLocation)
         {
-            var temp = new List<LocationData>(locationsContext) { newLocation };
-            var map = await MapGen.GenerateMap(temp, temp);
-            
+            //var temp = new List<LocationData>(locationsContext) { newLocation };
+            //var map = await MapGen.GenerateMap(temp, temp);
             var prompt = BuildPrompt(PromptType.GenerationObjects,
-                JsonUtils.Serialize(new 
-                { 
-                    description, 
-                    Context = WorldStateHelper.FormatLocationData(locationsContext, objectsContext),
-                    LocationToPopulate = WorldStateHelper.FormatLocationData([newLocation],[]),
-                    next_id = StateManager.Instance.CurrentWorld.GetNextId(),
-                }));
+                $"Generation description: {description}\n Context objects: {WorldStateHelper.FormatLocationData(locationsContext, objectsContext)}\n" +
+                $" LocationToPopulate:{WorldStateHelper.FormatLocationData([newLocation],[])} \n NextId:{StateManager.Instance.CurrentWorld.GetNextId()} \nCurrent time: {WorldStateHelper.GetCurrentWorldTime(locationsContext)}");
 
             var result = await ExecuteLmmRequest<ObjectsResponse>(prompt, null);
             
             if (result.Objects.Count > 0)
             {
-                int maxId = result.Objects.Max(o => o.Id);
+                var maxId = result.Objects.Max(o => o.Id);
                 StateManager.Instance.CurrentWorld.SetNextId(maxId + 1);
             }
             else
@@ -225,56 +222,27 @@ namespace RPG.Tools
             return result.Objects;
         }
 
-        private async Task<List<GroupData>> GenerateGroupDescriptions(List<GroupData> groups, List<ObjectData> objects)
+        private (List<int> LocationId, string Cell) FindStartingCell(List<LocationData> contextLocations)
         {
-            if (groups == null || groups.Count == 0) return groups;
-
-            var result = WorldStateHelper.FormatGroupData(groups, objects);
-            var prompt = BuildPrompt(PromptType.GenerationGroupDescription, result);
-            
-            var lmm = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
-            var jsonResponse = await lmm.GenerateAsync(new LmmRequest { UserPrompt = prompt, Temperature = 0.7f });
-            
-            if (JsonUtils.TryDeserialize<GroupResponse>(jsonResponse, out var response))
-            {
-                return response.Groups;
-            }
-
-            return groups;
-        }
-
-        private string FindStartingCell(string requestedCell, List<LocationData> contextLocations)
-        {
-            if (!string.IsNullOrEmpty(requestedCell)) return requestedCell;
-
             var world = StateManager.Instance.CurrentWorld;
-            
-            // Если переданный контекст локаций пуст
-            if (contextLocations == null || contextLocations.Count == 0) return "0:0:0";
-
-            // Пытаемся найти последнюю активную локацию из истории, но проверяем ее наличие в контексте
+            if (contextLocations == null || contextLocations.Count == 0) return ([], "0:0:0");
             if (world.History.Texts.Count > 0)
             {
                 var lastText = world.History.Texts.Last();
                 if (lastText.Locations.Count > 0)
                 {
-                    int locId = lastText.Locations.Last();
+                    var locId = lastText.Locations.Last();
                     // Ищем локацию в контексте
                     var loc = contextLocations.FirstOrDefault(l => l.Id == locId);
-                    if (loc != null) return FindNeighborCellForLocation(loc, contextLocations);
+                    if (loc != null) return ([loc.Id], FindNeighborCellForLocation(loc, contextLocations));
                 }
             }
 
-            // Фоллбек: случайная локация из контекста
-            var randomLoc = contextLocations[new Random().Next(contextLocations.Count)];
-            return FindNeighborCellForLocation(randomLoc, contextLocations);
+            return default;
         }
 
         private string FindNeighborCellForLocation(LocationData loc, List<LocationData> allContextLocations)
         {
-            // Собираем все занятые ячейки из переданного контекста локаций
-            // Это важнее, чем world.Cells, так как в цепочке генерации CellData может еще не существовать,
-            // но LocationData уже содержит обновленные индексы групп.
             var occupied = allContextLocations
                 .SelectMany(l => l.GetCellIndices())
                 .ToHashSet();
@@ -284,7 +252,6 @@ namespace RPG.Tools
             foreach (var cellIdx in locCells)
             {
                 var coord = GridCoordinate.Parse(cellIdx);
-                // Проверяем 4 соседей (плоскость)
                 var neighbors = new[]
                 {
                     new GridCoordinate(coord.X + 1, coord.Y, coord.Z),
@@ -295,12 +262,11 @@ namespace RPG.Tools
 
                 foreach (var n in neighbors)
                 {
-                    string nIdx = n.ToString();
+                    var nIdx = n.ToString();
                     if (!occupied.Contains(nIdx)) return nIdx;
                 }
             }
-
-            // Если не нашли свободного соседа (редкий случай), просто отступаем от первой ячейки
+            
             if (locCells.Count > 0)
             {
                 var coord = GridCoordinate.Parse(locCells[0]);
@@ -310,11 +276,10 @@ namespace RPG.Tools
             return "0:0:0";
         }
 
-        private string BuildPrompt(PromptType type, string specificJson)
+        private string BuildPrompt(PromptType type, string inputData)
         {
-            string rules = PromptLibrary.Instance.GetPrompt(PromptType.GenerationRules);
-            string task = PromptLibrary.Instance.GetPrompt(type, specificJson);
-            return $"{rules}\n\n{task}";
+            var rules = PromptLibrary.Instance.GetPrompt(PromptType.GenerationRules);
+            return PromptLibrary.Instance.GetPrompt(type, rules, inputData);
         }
 
         private async Task<T> ExecuteLmmRequest<T>(string fullPrompt, Image contextImage = null)
@@ -323,11 +288,12 @@ namespace RPG.Tools
             {
                 UserPrompt = fullPrompt,
                 Temperature = 0.4f, 
-                Images = contextImage != null ? new List<Image> { contextImage } : null
+                Images = contextImage != null ? new List<Image> { contextImage } : null,
+                ThinkingLevel = GeminiThinkingLevel.medium
             };
 
             var provider = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
-            string json = await provider.GenerateAsync(request);
+            var json = await provider.GenerateAsync(request);
 
             if (JsonUtils.TryDeserialize<T>(json, out var result))
             {
@@ -349,12 +315,14 @@ namespace RPG.Tools
                 }
             };
             
-            string output = JsonUtils.Serialize(new ToolResponseContainer 
+            var output = JsonUtils.Serialize(new ToolResponseContainer 
             { 
                 ToolName = ToolName, 
                 Result = result 
             });
             
+            LmmFactory.Instance.GetProvider(LmmModelType.Fast).PrintTokens();
+            LmmFactory.Instance.GetProvider(LmmModelType.Smart).PrintTokens();
             OnComplete?.Invoke(output);
         }
     }

@@ -9,8 +9,9 @@ Return a JSON object with the following structure:
 {{
     "type": "string", // Options: "location", "group", "object"
     "description": "string", // Comprehensive description of WHAT to generate
-	"cell": "string", // Optional: "X:Y:Z" coordinate if explicitly mentioned or implied as 'here'
-    "id": int // Optional: Integer ID if explicitly mentioned (e.g. "add to location 5")
+    "target_cells": ["string"] or empty array, // Array of "X:Y:Z" coordinates. Examples: ["1:1:0"] or ["1:1:0", "1:2:0"] for connections
+    "id": int, // Optional: The ID of the PARENT location to add to. (e.g. "add to location 5"). MAX 1.
+    "target_locations": [int] or empty array // Optional: IDs of locations to connect or reference (e.g. "connect 5 and 6").
 }}
 
 GUIDELINES:
@@ -19,7 +20,13 @@ GUIDELINES:
    - "group": Adding a room or area to an EXISTING location.
    - "object": Creating items, furniture, or NPCs.
 2. Description: Keep all adjectives and details.
-3. If the user mentions "here" or "current", leave "cell" null (the system handles context). Only fill "cell" if a specific coordinate is given.
+3. Coordinates (target_cells): 
+   - Extract explicitly mentioned coordinates into the list.
+   - If the user implies "here" or "current", return an empty list [] (system handles context).
+   - If multiple cells are mentioned (e.g., for a path or connection), include all of them.
+4. IDs vs Target Locations:
+   - field "id": Use this ONLY for hierarchy/attachment. It defines WHERE the new content belongs (e.g. "add a table to room 10"). strictly single value.
+   - field "target_locations": Use this for topology/interaction. It defines which EXISTING locations are involved or connected (e.g. "corridor between location 5 and 6").
 
 USER INPUT:
 {0}

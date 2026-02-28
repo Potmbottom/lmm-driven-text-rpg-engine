@@ -30,9 +30,8 @@ namespace RPG.Tools
                     return;
                 }
 
-                string narrativeResult = "";
-
-                // Execute logic based on which tool produced the data
+                var narrativeResult = "";
+                
                 var textCombined = container.Result.Immutable.Text.Text;
                 switch (container.ToolName)
                 {
@@ -49,15 +48,14 @@ namespace RPG.Tools
                         narrativeResult = $"Processing completed by unknown tool: {container.ToolName}";
                         break;
                 }
-
-                // Final response wrapper
+                
                 var response = new ToolResponseContainer
                 {
                     ToolName = ToolName,
                     Result = new ToolResultContent()
                 };
 
-                string jsonResponse = JsonSerializer.Serialize(response);
+                var jsonResponse = JsonSerializer.Serialize(response);
                 OnUpdate?.Invoke(narrativeResult);
                 OnComplete?.Invoke(jsonResponse);
             }

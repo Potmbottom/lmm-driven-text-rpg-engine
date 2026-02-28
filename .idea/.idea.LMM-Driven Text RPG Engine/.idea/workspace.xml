@@ -5,20 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1616f288-24ec-4a7c-9b1d-2227304f1b47" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Scripts/AI/Providers/LocalLmmProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Scripts/Tools/GenerationTool.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Scripts/Tools/SimulationHelper.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Scripts/AI/Models/ProviderModels.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/editor_layout.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/editor_layout.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_update4" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/filesystem_update4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_update4" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/main.tscn-editstate-2ddd04d543d5858e7f20c9299a8b5096.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/main.tscn-editstate-2ddd04d543d5858e7f20c9299a8b5096.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/project_metadata.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/project_metadata.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/quick_open_dialog_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/quick_open_dialog_cache.cfg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/editor/script_editor_cache.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/script_editor_cache.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.ctex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map.png-17f8428cff6b741ffce9171c436ec35f.md5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.ctex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/generated_map_updated.png-a188885d8674880cb8909fc0421b2201.md5" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.ctex" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.ctex" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.md5" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/imported/manual_debug_map.png-6c95eccf76c55267fc20d0bd8c0d1da6.md5" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/metadata/ide_messaging_meta.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/metadata/ide_messaging_meta.txt" afterDir="false" />
@@ -26,10 +20,9 @@
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/bin/Debug/LMM-Driven Text RPG Engine.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfo.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.AssemblyInfoInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/LMM-Driven Text RPG Engine.sourcelink.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/ref/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/ref/LMM-Driven Text RPG Engine.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/refint/LMM-Driven Text RPG Engine.dll" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/Debug/refint/LMM-Driven Text RPG Engine.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.model.nuget.info" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/mono/temp/obj/rider.project.model.nuget.info" afterDir="false" />
@@ -40,19 +33,35 @@
       <change beforePath="$PROJECT_DIR$/Database/vectors_cache.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/vectors_cache.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/versions/v_1.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_1.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Database/versions/v_2.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_3.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_4.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_4.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_5.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_5.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Database/versions/v_6.json" beforeDir="false" afterPath="$PROJECT_DIR$/Database/versions/v_6.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LMM-Driven Text RPG Engine.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/LMM-Driven Text RPG Engine.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prompts/LocationGeneration.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prompts/Narrative.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/Narrative.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prompts/NextTool.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/NextTool.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prompts/ObjectsGeneration.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationGroup.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationGroupDescription.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationLocation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/GenerationLocation.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationObject.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/GenerationObject.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationObjects.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/GenerationObjects.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationQueryParser.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/GenerationQueryParser.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/GenerationRules.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/GenerationRules.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/QueryFinalizer.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/QueryFinalizer.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Prompts/QueryOrchestrator.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/QueryOrchestrator.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Prompts/Simulation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/Simulation.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/SimulationContext.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/SimulationContext.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/SimulationQueryParser.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/SimulationQueryParser.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Prompts/UnsafeNarrative.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Prompts/UnsafeNarrative.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scenes/main.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/Scenes/main.tscn" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/AI/Core/ILmmProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/Core/ILmmProvider.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/AI/LmmFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/LmmFactory.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/AI/PromptLibrary.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/PromptLibrary.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/AI/Providers/GeminiProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/Providers/GeminiProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/AI/Providers/LocalLmmProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/AI/Providers/LocalLmmProvider.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Commands/MapCommand.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Commands/MapCommand.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/GridCoordinate.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/GridCoordinate.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/ITool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/ITool.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/InputHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/InputHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Core/JsonUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/JsonUtils.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Core/MapGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/MapGenerator.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Core/StateManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/StateManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Core/TimeHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Core/TimeHelper.cs" afterDir="false" />
@@ -63,15 +72,12 @@
       <change beforePath="$PROJECT_DIR$/Scripts/Models/ToolModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Models/ToolModels.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Models/WorldModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Models/WorldModels.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Tools/FinalTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/FinalTool.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Scripts/Tools/LocationGeneratorTool.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Scripts/Tools/LocationGeneratorTool.cs.uid" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/GenerationTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/GenerationTool.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Tools/QueryTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/QueryTool.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Scripts/Tools/SimulationHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/SimulationHelper.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/Tools/SimulationTool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/Tools/SimulationTool.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Scripts/UI/GameUI.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Scripts/UI/GameUI.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated_map.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated_map.png.import" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated_map_updated.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/generated_map_updated.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/manual_debug_map.png" beforeDir="false" afterPath="$PROJECT_DIR$/manual_debug_map.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +98,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1c378f459c054fecaf4484a0fa6d44c055a800/db/dc790c56/GodotObject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d19995b60b2e43f9b6d2005a13b2d476ca708/a2/857a3503/TaskCompletionSource`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d19995b60b2e43f9b6d2005a13b2d476ca708/d9/0608eef9/Int64.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f515d5e8fb074650ab911d53366efe4912110/c8/3f0be72e/JsonElement.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Scripts/Core/InputHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Scripts/Core/ToolController.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -239,6 +246,15 @@
       <workItem from="1770850432646" duration="2491000" />
       <workItem from="1770887657120" duration="26980000" />
       <workItem from="1770932914119" duration="9178000" />
+      <workItem from="1770970689292" duration="26427000" />
+      <workItem from="1771020128666" duration="7943000" />
+      <workItem from="1771062974206" duration="33781000" />
+      <workItem from="1771172830173" duration="8998000" />
+      <workItem from="1771230659934" duration="14326000" />
+      <workItem from="1771257838984" duration="845000" />
+      <workItem from="1771266820171" duration="12084000" />
+      <workItem from="1771322171603" duration="4877000" />
+      <workItem from="1772281078429" duration="1095000" />
     </task>
     <servers />
   </component>
@@ -269,8 +285,6 @@
     </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
-        <PinnedItemInfo parentTag="Type#RPG.Models.LocationData" memberName="Groups" />
-        <PinnedItemInfo parentTag="Type#RPG.Models.ObjectData" memberName="History" />
         <PinnedItemInfo parentTag="Type#RPG.Models.Simulation.SimulationAction" memberName="ActionData" />
       </pinned-members>
     </pin-to-top-manager>

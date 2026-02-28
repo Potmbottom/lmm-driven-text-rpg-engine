@@ -7,7 +7,7 @@ namespace RPG.Core
     public partial class InputHandler : Node
     {
         [Export] public ToolController Controller;
-        [Export] public MapGenerator MapGen; // Ссылка на генератор (передается в MapCommand)
+        [Export] public MapGenerator MapGen;
 
         public void ProcessInput(string input)
         {
@@ -19,14 +19,13 @@ namespace RPG.Core
             }
             else
             {
-                // Обычный запрос к AI
                 Controller.StartTurn(input);
             }
         }
 
         private void HandleCommand(string command)
         {
-            string cmd = command.ToLower().Trim();
+            var cmd = command.ToLower().Trim();
 
             switch (cmd)
             {
@@ -43,7 +42,6 @@ namespace RPG.Core
                     break;
                 
                 case "/map":
-                    // Запускаем асинхронную команду (fire-and-forget для UI команды)
                     _ = new MapCommand(MapGen).ExecuteAsync();
                     break;
                 case "/undo":

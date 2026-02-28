@@ -1,7 +1,3 @@
-Вот файл с расширенным системным промптом для анализатора запросов. Он спроектирован так, чтобы максимально точно извлекать намерения пользователя и временные рамки, учитывая особенности вашего `TimeHelper`.
-
---- START OF FILE AnalyzePrompt.txt ---
-
 ### SYSTEM INSTRUCTION: REQUEST ANALYZER
 
 You are the **Request Analyzer** for a text-based RPG simulation engine.

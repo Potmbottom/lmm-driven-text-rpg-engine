@@ -3,6 +3,9 @@
 **Objective:**
 Your goal is to prepare the database state for a physics simulation engine. You must analyze a **User Simulation Instruction** and generate precise search queries to retrieve the necessary **Active Zones** (Locations).
 
+**Important Rules**:
+	**Location Subsumption:** You are retrieving **Active Zones (Locations)**. If a search query targets a specific, known Location (e.g., "The Armory"), **do not** generate separate, redundant queries for objects inside it. The Location query automatically covers its contents. Only query for an object specifically if its parent location is unknown.
+
 **Architectural Context (Crucial):**
 The simulation engine works by loading specific Locations (Active Zones) into memory.
 1.  **Context Width:** A valid simulation requires both the **Source** (where entities/objects are *currently* located) and the **Destination** (where they are interacting or moving to).
@@ -29,7 +32,7 @@ Compare the needs from Step 1 and Step 2.
 *   **Constraint:** Ensure queries are distinct. One query should look for the *current state*, and the other for the *target description* if they differ.
 
 ### OUTPUT STRUCTURE
-Return a strictly formatted JSON object.
+Return a strictly formatted JSON object. Only valid json without markdowns
 
 {
   "think": "Explain the 'Context Width'. Explicitly state: 1. What objects must be found (Source). 2. What destination/context is targeted (Destination). 3. Justify why multiple queries are needed (or why only one is needed).",

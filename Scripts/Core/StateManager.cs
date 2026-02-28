@@ -3,6 +3,11 @@ using RPG.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using RPG.AI;
+using RPG.AI.Core;
+using RPG.AI.Providers;
+using RPG.Core.Helpers;
 
 namespace RPG.Core
 {
@@ -13,6 +18,9 @@ namespace RPG.Core
         private const string DB_ROOT = "res://Database/";
         private const string VERSIONS_DIR = "res://Database/versions/";
         private const string SNAPSHOT_PATH = "res://Database/snapshot.json";
+        
+        private const int HISTORY_COMPRESSION_THRESHOLD_CHARS = 1500;
+        private const int HISTORY_COMPRESSION_THRESHOLD_COUNT = 6;
 
         public VectorDatabase VectorDB;
 
@@ -44,8 +52,6 @@ namespace RPG.Core
             CurrentWorld = JsonUtils.Deserialize<WorldState>(file.GetAsText());
 
             GD.Print($"🌍 World Loaded. Version: {CurrentWorld.Meta.VersionInt}");
-
-            // Rebuild Vector DB state from loaded world
             await VectorDB.RebuildDatabase(CurrentWorld);
         }
 
@@ -53,39 +59,32 @@ namespace RPG.Core
         {
             GD.Print("💾 Processing Commit...");
             var consolidatedChanges = new ToolResultContent();
-            bool hasAnyChanges = false;
+            var hasAnyChanges = false;
 
-            for (int i = 1; i < aggregatedHistory.Count; i++)
+            for (var i = 1; i < aggregatedHistory.Count; i++)
             {
-                try
+                var response = JsonUtils.Deserialize<ToolResponseContainer>(aggregatedHistory[i]);
+                if (response == null || response.Result == null) continue;
+
+                if (response.Result.Mutable != null)
                 {
-                    var response = JsonUtils.Deserialize<ToolResponseContainer>(aggregatedHistory[i]);
-                    if (response == null || response.Result == null) continue;
-
-                    if (response.Result.Mutable != null)
-                    {
-                        consolidatedChanges.Mutable.Locations.AddRange(response.Result.Mutable.Locations);
-                        consolidatedChanges.Mutable.Objects.AddRange(response.Result.Mutable.Objects);
-                    }
-
-                    if (response.Result.Immutable?.Text != null &&
-                        !string.IsNullOrEmpty(response.Result.Immutable.Text.Text))
-                    {
-                        consolidatedChanges.Immutable.Text = response.Result.Immutable.Text;
-                    }
-
-                    hasAnyChanges = true;
+                    consolidatedChanges.Mutable.Locations.AddRange(response.Result.Mutable.Locations);
+                    consolidatedChanges.Mutable.Objects.AddRange(response.Result.Mutable.Objects);
                 }
-                catch
+
+                if (response.Result.Immutable?.Text != null &&
+                    !string.IsNullOrEmpty(response.Result.Immutable.Text.Text))
                 {
-                    /* Ignore parse errors */
+                    consolidatedChanges.Immutable.Text = response.Result.Immutable.Text;
                 }
+
+                hasAnyChanges = true;
             }
 
             if (!hasAnyChanges) return;
 
-            int newVersion = CurrentWorld.Meta.VersionInt + 1;
-            string timestamp = CurrentWorld.GetCurrentWorldTime(); // Берем актуальное время мира
+            var newVersion = CurrentWorld.Meta.VersionInt + 1;
+            var timestamp = WorldStateHelper.GetCurrentWorldTime(CurrentWorld.Locations);
 
             var versionDelta = new WorldVersionDelta
             {
@@ -107,65 +106,102 @@ namespace RPG.Core
             GD.Print($"✅ Commit complete. Version {newVersion} saved.");
         }
 
-        private async System.Threading.Tasks.Task ApplyDeltaToState(ToolResultContent changes)
+        private async Task ApplyDeltaToState(ToolResultContent changes)
         {
-            // Mutable (Upsert)
             if (changes.Mutable != null)
             {
                 foreach (var newLoc in changes.Mutable.Locations)
                 {
-                    int index = CurrentWorld.Locations.FindIndex(l => l.Id == newLoc.Id);
+                    var index = CurrentWorld.Locations.FindIndex(l => l.Id == newLoc.Id);
                     if (index != -1) CurrentWorld.Locations[index] = newLoc;
                     else CurrentWorld.Locations.Add(newLoc);
-
-                    // Update Vector DB (Locations)
-                    string groupsDesc = string.Join("; ", newLoc.Groups.Select(g => g.Description));
-                    string fullDesc = $"[Location] {newLoc.Description}. Groups: {groupsDesc}";
+                    var groupsDesc = string.Join("; ", newLoc.Groups.Select(g => g.Description));
+                    var fullDesc = $"[Location] {newLoc.Description}. Groups: {groupsDesc}";
 
                     await VectorDB.UpdateLocation(newLoc.Id, fullDesc);
                 }
+                
+                var objectTasks = new List<Task>();
 
                 foreach (var newObj in changes.Mutable.Objects)
                 {
-                    int index = CurrentWorld.Objects.FindIndex(o => o.Id == newObj.Id);
-                    if (index != -1) CurrentWorld.Objects[index] = newObj;
-                    else CurrentWorld.Objects.Add(newObj);
-
-                    // Update Vector DB (Objects)
-                    string desc = $"[Object] History: {string.Join("; ", newObj.History)}";
-                    await VectorDB.UpdateObject(newObj.Id, desc);
+                    objectTasks.Add(ProcessObjectUpsert(newObj));
+                }
+                
+                if (objectTasks.Count > 0)
+                {
+                    await Task.WhenAll(objectTasks);
                 }
             }
-
-            // Immutable (Append)
+            
             if (changes.Immutable?.Text != null && !string.IsNullOrEmpty(changes.Immutable.Text.Text))
             {
                 CurrentWorld.History.Texts.Add(changes.Immutable.Text);
 
-                int newIndex = CurrentWorld.History.Texts.Count - 1;
+                var newIndex = CurrentWorld.History.Texts.Count - 1;
                 await VectorDB.AddEvent(newIndex, changes.Immutable.Text.Text);
             }
+        }
+        
+        private async Task ProcessObjectUpsert(ObjectData newObj)
+        {
+            await CompressHistoryIfNeeded(newObj);
+            var index = CurrentWorld.Objects.FindIndex(o => o.Id == newObj.Id);
+            if (index != -1) CurrentWorld.Objects[index] = newObj;
+            else CurrentWorld.Objects.Add(newObj);
+            var desc = $"[Object] History: {string.Join("; ", newObj.History)}";
+            await VectorDB.UpdateObject(newObj.Id, desc);
+        }
+        
+        private async Task CompressHistoryIfNeeded(ObjectData obj)
+        {
+            if (obj.History is not { Count: > 1 }) return;
+            
+            var totalChars = obj.History.Skip(1).Sum(s => s?.Length ?? 0);
+            var needsCompression = (obj.History.Count >= HISTORY_COMPRESSION_THRESHOLD_COUNT) || 
+                                   (totalChars >= HISTORY_COMPRESSION_THRESHOLD_CHARS);
+            if (!needsCompression) return;
+
+            GD.Print($"🗜️ Compressing history for Object ID {obj.Id}. Entries: {obj.History.Count}, Chars: {totalChars}");
+
+            var rawHistory = string.Join("\n", obj.History);
+            var prompt = PromptLibrary.Instance.GetPrompt(PromptType.HistoryCompressor, rawHistory);
+            var request = new LmmRequest
+            {
+                UserPrompt = prompt,
+                SystemInstruction = "You are a precise data compressor. Keep all timestamps.",
+                Temperature = 0.4f,
+                ThinkingLevel = GeminiThinkingLevel.medium
+            };
+            
+            var provider = LmmFactory.Instance.GetProvider(LmmModelType.Fast);
+            var compressedResult = "START OF MEMORY SNAPSHOT\n";
+            compressedResult += await provider.GenerateAsync(request);
+            compressedResult += "\nEND OF MEMORY SNAPSHOT";
+            
+            obj.History.Clear();
+            obj.History.Add(compressedResult.Trim());
+            GD.Print($"✅ Compression success for Object ID {obj.Id}. New Length: {compressedResult.Length}");
         }
 
         public async void RollbackOneVersion()
         {
-            int currentVersion = CurrentWorld.Meta.VersionInt;
+            var currentVersion = CurrentWorld.Meta.VersionInt;
             if (currentVersion <= 0) return;
 
             GD.Print($"⏪ Rolling back from v{currentVersion} to v{currentVersion - 1}...");
 
-            string lastDeltaPath = $"{VERSIONS_DIR}v_{currentVersion}.json";
+            var lastDeltaPath = $"{VERSIONS_DIR}v_{currentVersion}.json";
             if (FileAccess.FileExists(lastDeltaPath)) DirAccess.RemoveAbsolute(lastDeltaPath);
 
-            string originalCreatedAt = CurrentWorld.Meta.CreatedAt;
+            var originalCreatedAt = CurrentWorld.Meta.CreatedAt;
             CurrentWorld = new WorldState();
             CurrentWorld.Meta.CreatedAt = originalCreatedAt;
-
-            // Replay
-            int targetVersion = currentVersion - 1;
-            for (int i = 1; i <= targetVersion; i++)
+            
+            var targetVersion = currentVersion - 1;
+            for (var i = 1; i <= targetVersion; i++)
             {
-                string path = $"{VERSIONS_DIR}v_{i}.json";
+                var path = $"{VERSIONS_DIR}v_{i}.json";
                 if (FileAccess.FileExists(path))
                 {
                     using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
@@ -181,8 +217,6 @@ namespace RPG.Core
             CurrentWorld.Meta.VersionInt = targetVersion;
             RecalculateNextId();
             SaveSnapshot();
-
-            // Full Rebuild of Vectors after Rollback
             await VectorDB.RebuildDatabase(CurrentWorld);
 
             GD.Print($"✅ Rollback complete. Version: {CurrentWorld.Meta.VersionInt}");
@@ -194,14 +228,14 @@ namespace RPG.Core
             {
                 foreach (var l in changes.Mutable.Locations)
                 {
-                    int i = CurrentWorld.Locations.FindIndex(x => x.Id == l.Id);
+                    var i = CurrentWorld.Locations.FindIndex(x => x.Id == l.Id);
                     if (i != -1) CurrentWorld.Locations[i] = l;
                     else CurrentWorld.Locations.Add(l);
                 }
 
                 foreach (var o in changes.Mutable.Objects)
                 {
-                    int i = CurrentWorld.Objects.FindIndex(x => x.Id == o.Id);
+                    var i = CurrentWorld.Objects.FindIndex(x => x.Id == o.Id);
                     if (i != -1) CurrentWorld.Objects[i] = o;
                     else CurrentWorld.Objects.Add(o);
                 }
@@ -221,7 +255,7 @@ namespace RPG.Core
 
         private void SaveDeltaFile(WorldVersionDelta delta)
         {
-            string path = $"{VERSIONS_DIR}v_{delta.VersionId}.json";
+            var path = $"{VERSIONS_DIR}v_{delta.VersionId}.json";
             using var file = FileAccess.Open(path, FileAccess.ModeFlags.Write);
             file.StoreString(JsonUtils.Serialize(delta));
         }
@@ -243,7 +277,7 @@ namespace RPG.Core
 
         private void RecalculateNextId()
         {
-            int maxId = 0;
+            var maxId = 0;
             if (CurrentWorld.Locations.Count > 0) maxId = Math.Max(maxId, CurrentWorld.Locations.Max(l => l.Id));
             if (CurrentWorld.Objects.Count > 0) maxId = Math.Max(maxId, CurrentWorld.Objects.Max(o => o.Id));
             CurrentWorld.SetNextId(maxId + 1);

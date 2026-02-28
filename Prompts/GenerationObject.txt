@@ -2,8 +2,8 @@ TASK:
 Generate a specific Object (and its children/contents) based on the user request.
 
 INPUT CONTEXT:
+{1}
 {0}
-(Contains: "description", "context", "next_id")
 
 INSTRUCTIONS:
 1. Analyze `description`. Break it down into atomic objects.

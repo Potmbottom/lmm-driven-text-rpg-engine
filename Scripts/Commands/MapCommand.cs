@@ -26,13 +26,10 @@ namespace RPG.Tools
             }
 
             GD.Print("🗺️ Generating manual map...");
-
-            // 4. Генерируем изображение
             var image = await _mapGenerator.GenerateMap(StateManager.Instance.CurrentWorld.Locations, StateManager.Instance.CurrentWorld.Locations);
-
             if (image != null)
             {
-                string path = "res://manual_debug_map.png";
+                var path = "res://manual_debug_map.png";
                 image.SavePng(path);
                 GD.Print($"✅ Map saved to: {path}");
             }

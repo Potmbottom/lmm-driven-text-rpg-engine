@@ -1,31 +1,50 @@
 TASK:
-Design the layout (topology) for a NEW Location OR Groups based on the visual map and description.
-
-INPUT CONTEXT:
-{0} 
-(Contains: "anchor_cell", "description")
-
+Design the layout (topology) for a NEW Location OR Groups based on the visual map, input description, and topological constraints.
+===================================
+{0}
+===========INPUT PARAMETERS========
+{1}
+===================================
 VISUAL MAP INTERPRETATION:
-- You are provided with an image of the grid. 
-- Colored/Marked cells are OCCUPIED. You cannot build there.
-- Black/Empty cells are VOID/FREE. Build there.
-- The "anchor_cell" is your starting point.
+- You are provided with an image of the grid.
+- **OCCUPIED CELLS (Colored/Marked):** These represent obstacles OR `existing_locations`. **STRICTLY FORBIDDEN** to build on these specific indices.
+- **VOID CELLS (Black/Empty):** These are free spaces. Build here.
+- **TARGET CELLS:** Marked coordinates in the input. These are the mandatory connection points for your new geometry.
+
+DATA PROCESSING & GENERATION LOGIC:
+1.  **Analyze Target Logic:**
+	- **Single Target:** Treat the lone `target_cell` as a "Seed". Grow the location outwards from this point according to the size/shape in the `description`. Generated location or group always include ALL target_cells.a
+	- **Multiple Targets:** Your primary goal is to form a coherent structure that **physically connects** all provided `target_cells`.
+		- If the description implies a "Path" or "Hall", build a direct connection.
+		- If the description implies a "Room" or "Area", use the targets as boundary markers or key points within the volume.
+
+2.  **Context Alignment (Smart Connections):**
+	- Review `existing_locations_context` associated with the `target_cells`.
+	- Look for functional keywords: "door", "gate", "open wall", "end of corridor".
+	- **Directionality:** If a target is a "Door" of an existing house, generate the new topology moving *away* from that door (normal to the surface), ensuring the passage is accessible.
+
+3.  **Collision Avoidance:**
+	- Do NOT generate indices that exist in `existing_locations_context`.
+	- You may (and often must) be *adjacent* to them to form connections, but never overlap.
 
 INSTRUCTIONS:
-1. Analyze the `description` to determine the size and number of Groups (rooms/areas).
-   - Example: "A small house" -> 1-2 groups, approx 3x3 to 5x5 cells total.
-   - Example: "A large hall" -> 1 group, 10x5 cells.
-2. Select `cell_indices` from the FREE space on the map adjacent to the anchor.
-3. Groups must be contiguous (connected).
-
+1.  **Analyze the `description`** to determine the function and zoning (Groups).
+2.  **Select `cell_indices`** from the VOID space.
+	- **Mandatory:** The resulting set of indices MUST include or be directly adjacent to ALL `target_cells`.
+	- **Continuity:** Ensure the generated cells form a single connected component (unless description specifies disjoint zones) that links the targets.
+3.  **Write Descriptions:** 
+	- Keep them **brief and structural**.
+	- Focus on topology (e.g., "Connecting breezeway", "Expansion chamber", "Main hall").
+	- **CRITICAL:** No internal objects/furniture.
+========================================================================================
 OUTPUT JSON:
 {{
-	"description": ,// generalized purified description
+	"description": "Short summary of the overall location structure and layout", //ignore this value if you genrate group only(not location)
 	"groups": [
-			{{
-				"cell_indices": ["x:y:z", "x:y:z", ...] // List of ALL coordinates for this room
-			}},
-			...
-		]
-	}}
+		{{
+			"description": "Structural purpose of this specific zone",
+			"cell_indices": ["x:y:z", "x:y:z", ...] 
+		}},
+		...
+	]
 }}

@@ -55,7 +55,8 @@ script = ExtResource("4_jjvhh")
 
 [node name="MapGenerator" type="Node" parent="." node_paths=PackedStringArray("TargetViewport", "ViewportRoot")]
 script = ExtResource("5_kry3j")
-CellSize = 64
+CellSize = 32
+BaseFontSize = 8
 TargetViewport = NodePath("SubViewport")
 ViewportRoot = NodePath("SubViewport/Control")
 

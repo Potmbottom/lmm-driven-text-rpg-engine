@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using RPG.Core.Helpers;
 
 namespace RPG.Core
 {
@@ -33,13 +34,10 @@ namespace RPG.Core
         public static VectorDatabase Instance { get; private set; }
 
         private const string CACHE_PATH = "res://Database/vectors_cache.json";
-
-        // --- Runtime Storage (In-Memory Index) ---
+        
         private Dictionary<int, float[]> _locationVectors = new();
         private Dictionary<int, float[]> _objectVectors = new();
         private Dictionary<int, float[]> _eventVectors = new();
-
-        // --- Disk Cache (Persistent Storage: Hash -> Vector) ---
         private Dictionary<string, float[]> _vectorCache = new();
 
         public override void _Ready()
@@ -47,8 +45,6 @@ namespace RPG.Core
             Instance = this;
             LoadCache();
         }
-
-        // --- Public API ---
 
         public async Task UpdateLocation(int id, string description)
         {
@@ -90,11 +86,11 @@ namespace RPG.Core
             _objectVectors.Clear();
             _eventVectors.Clear();
 
-            HashSet<string> activeHashes = new HashSet<string>();
+            var activeHashes = new HashSet<string>();
 
             foreach (var loc in world.Locations)
             {
-                string context = FormatLocationText(loc);
+                var context = FormatLocationText(loc);
                 var result = await GetVectorWithCache(context);
                 if (result.Vector != null)
                 {
@@ -105,7 +101,7 @@ namespace RPG.Core
 
             foreach (var obj in world.Objects)
             {
-                string context = FormatObjectText(obj);
+                var context = FormatObjectText(obj);
                 var result = await GetVectorWithCache(context);
                 if (result.Vector != null)
                 {
@@ -114,9 +110,9 @@ namespace RPG.Core
                 }
             }
 
-            for (int i = 0; i < world.History.Texts.Count; i++)
+            for (var i = 0; i < world.History.Texts.Count; i++)
             {
-                string text = world.History.Texts[i].Text;
+                var text = world.History.Texts[i].Text;
                 var result = await GetVectorWithCache(text);
                 if (result.Vector != null)
                 {
@@ -132,7 +128,7 @@ namespace RPG.Core
 
         private void PruneCache(HashSet<string> activeHashes)
         {
-            int initialCount = _vectorCache.Count;
+            var initialCount = _vectorCache.Count;
             var keysToRemove = _vectorCache.Keys.Where(k => !activeHashes.Contains(k)).ToList();
 
             foreach (var key in keysToRemove)
@@ -145,8 +141,7 @@ namespace RPG.Core
                 GD.Print($"🧹 Vector Cache Pruned: Removed {keysToRemove.Count} orphaned vectors. ({initialCount} -> {_vectorCache.Count})");
             }
         }
-
-        // MODIFIED: Added allowedIds parameter for filtering
+        
         public async Task<List<VectorSearchResult>> Search(string query, SearchType type, int limit = 5, List<int> allowedIds = null)
         {
             var result = await GetVectorWithCache(query);
@@ -156,23 +151,22 @@ namespace RPG.Core
 
             var results = new List<VectorSearchResult>();
             var world = StateManager.Instance.CurrentWorld;
-            string currentWorldTime = world.GetCurrentWorldTime();
+            var currentWorldTime = WorldStateHelper.GetCurrentWorldTime(world.Locations);
 
             if (type == SearchType.Location)
             {
                 foreach (var kvp in _locationVectors)
                 {
-                    int id = kvp.Key;
+                    var id = kvp.Key;
                     
-                    // Filter check
                     if (allowedIds != null && allowedIds.Count > 0 && !allowedIds.Contains(id)) continue;
 
                     var loc = world.Locations.FirstOrDefault(l => l.Id == id);
                     if (loc == null) continue;
 
-                    float sim = CosineSimilarity(queryVector, kvp.Value);
-                    string fullContent = FormatLocationText(loc);
-                    string time = loc.LastUpdateTime;
+                    var sim = CosineSimilarity(queryVector, kvp.Value);
+                    var fullContent = FormatLocationText(loc);
+                    var time = loc.LastUpdateTime;
 
                     results.Add(new VectorSearchResult
                     {
@@ -189,17 +183,16 @@ namespace RPG.Core
             {
                 foreach (var kvp in _objectVectors)
                 {
-                    int id = kvp.Key;
-
-                    // Filter check
+                    var id = kvp.Key;
+                    
                     if (allowedIds != null && allowedIds.Count > 0 && !allowedIds.Contains(id)) continue;
 
                     var obj = world.Objects.FirstOrDefault(o => o.Id == id);
                     if (obj == null) continue;
 
-                    float sim = CosineSimilarity(queryVector, kvp.Value);
-                    string fullContent = FormatObjectText(obj);
-                    string time = GetObjectTimeRecursive(obj, world);
+                    var sim = CosineSimilarity(queryVector, kvp.Value);
+                    var fullContent = FormatObjectText(obj);
+                    var time = GetObjectTimeRecursive(obj, world);
 
                     results.Add(new VectorSearchResult
                     {
@@ -216,16 +209,15 @@ namespace RPG.Core
             {
                 foreach (var kvp in _eventVectors)
                 {
-                    int index = kvp.Key;
-
-                    // Filter check
+                    var index = kvp.Key;
+                    
                     if (allowedIds != null && allowedIds.Count > 0 && !allowedIds.Contains(index)) continue;
 
                     if (index >= world.History.Texts.Count) continue;
 
                     var entry = world.History.Texts[index];
-                    float sim = CosineSimilarity(queryVector, kvp.Value);
-                    string eventTime = GetEventTime(entry, world);
+                    var sim = CosineSimilarity(queryVector, kvp.Value);
+                    var eventTime = GetEventTime(entry, world);
 
                     results.Add(new VectorSearchResult
                     {
@@ -242,44 +234,44 @@ namespace RPG.Core
             return results.OrderByDescending(r => r.HybridScore).Take(limit).ToList();
         }
 
-        // --- Helper Methods ---
-
         private string FormatLocationText(LocationData loc)
         {
             var groupsDesc = string.Join("; ", loc.Groups.Select(g => g.Description));
-            return $"[Location ID: {loc.Id}] Description: {loc.Description}. Groups: {groupsDesc}";
+            var keysText = loc.Keys.Count > 0 ? $"Keys: {string.Join(", ", loc.Keys)}. " : "";
+            return $"[Location ID: {loc.Id}] {keysText}Description: {loc.Description}. Groups: {groupsDesc}";
         }
 
         private string FormatObjectText(ObjectData obj)
         {
-            string hist = obj.History.Count > 0 ? string.Join("; ", obj.History) : "No history";
-            return $"[Object ID: {obj.Id}] History: {hist}";
+            var hist = obj.History.Count > 0 ? string.Join("; ", obj.History) : "No history";
+            var keysText = obj.Keys.Count > 0 ? $"Keys: {string.Join(", ", obj.Keys)}. " : "";
+            return $"[Object ID: {obj.Id}] {keysText}History: {hist}";
         }
 
         private string GetObjectTimeRecursive(ObjectData obj, WorldState world)
         {
-            return "day 1, 00:00"; // Placeholder implementation as in source
+            return "day 1, 00:00"; // Placeholder
         }
 
         private string GetEventTime(TextEntry entry, WorldState world)
         {
-            return "day 1, 00:00"; // Placeholder implementation as in source
+            return "day 1, 00:00"; // Placeholder
         }
 
         private float CalculateHybridScore(float similarity, string itemTime, string worldTime)
         {
-            long tItem = TimeHelper.ParseToSeconds(itemTime);
-            long tWorld = TimeHelper.ParseToSeconds(worldTime);
-            long diff = Math.Abs(tWorld - tItem);
+            var tItem = TimeHelper.ParseToSeconds(itemTime);
+            var tWorld = TimeHelper.ParseToSeconds(worldTime);
+            var diff = Math.Abs(tWorld - tItem);
             const float MAX_DIFF_MINUTES = 259200;
-            float timeFactor = 1.0f - Math.Clamp(diff / MAX_DIFF_MINUTES, 0f, 1f);
+            var timeFactor = 1.0f - Math.Clamp(diff / MAX_DIFF_MINUTES, 0f, 1f);
             return (similarity * 0.7f) + (timeFactor * 0.3f);
         }
 
         private async Task<(float[] Vector, string Hash)> GetVectorWithCache(string text)
         {
-            string hash = ComputeHash(text);
-            if (_vectorCache.TryGetValue(hash, out float[] cachedVec))
+            var hash = ComputeHash(text);
+            if (_vectorCache.TryGetValue(hash, out var cachedVec))
             {
                 return (cachedVec, hash);
             }
@@ -293,7 +285,7 @@ namespace RPG.Core
 
         public void SaveCache()
         {
-            string json = JsonUtils.Serialize(_vectorCache);
+            var json = JsonUtils.Serialize(_vectorCache);
             using var file = FileAccess.Open(CACHE_PATH, FileAccess.ModeFlags.Write);
             file.StoreString(json);
         }
@@ -302,17 +294,17 @@ namespace RPG.Core
         {
             if (!FileAccess.FileExists(CACHE_PATH)) return;
             using var file = FileAccess.Open(CACHE_PATH, FileAccess.ModeFlags.Read);
-            string json = file.GetAsText();
+            var json = file.GetAsText();
             var data = JsonUtils.Deserialize<Dictionary<string, float[]>>(json);
             if (data != null) _vectorCache = data;
         }
 
         private string ComputeHash(string input)
         {
-            using (MD5 md5 = MD5.Create())
+            using (var md5 = MD5.Create())
             {
-                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
+                var inputBytes = Encoding.UTF8.GetBytes(input);
+                var hashBytes = md5.ComputeHash(inputBytes);
                 return Convert.ToHexString(hashBytes);
             }
         }
@@ -321,7 +313,7 @@ namespace RPG.Core
         {
             if (vecA == null || vecB == null || vecA.Length != vecB.Length) return 0f;
             float dot = 0f, magA = 0f, magB = 0f;
-            for (int i = 0; i < vecA.Length; i++)
+            for (var i = 0; i < vecA.Length; i++)
             {
                 dot += vecA[i] * vecB[i];
                 magA += vecA[i] * vecA[i];

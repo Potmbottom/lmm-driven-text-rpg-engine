@@ -15,12 +15,23 @@ namespace RPG.Core
             Y = y;
             Z = z;
         }
-        
-        public static GridCoordinate Parse(string index)
+
+        public static GridCoordinate Parse(string indexStr)
         {
-            var parts = index.Split(':');
-            if (parts.Length != 3) throw new FormatException($"Invalid coordinate format: {index}");
-            return new GridCoordinate(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]));
+            var vec = ParseVector(indexStr);
+            return new GridCoordinate(vec.X, vec.Y, 0);
+        }
+        
+        public static Vector2I ParseVector(string indexStr)
+        {
+            if (string.IsNullOrEmpty(indexStr)) return Vector2I.Zero;
+
+            var parts = indexStr.Split(':');
+            if (parts.Length >= 2 && int.TryParse(parts[0], out var x) && int.TryParse(parts[1], out var y))
+            {
+                return new Vector2I(x, y);
+            }
+            return Vector2I.Zero;
         }
         
         public override string ToString()

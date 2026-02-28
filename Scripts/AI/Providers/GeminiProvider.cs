@@ -8,10 +8,15 @@ using Godot;
 using RPG.AI.Core;
 using RPG.Core;
 using HttpClient = System.Net.Http.HttpClient;
-using System.Text.Json.Serialization; // Добавлено для атрибутов JSON
+using System.Text.Json.Serialization;
 
 namespace RPG.AI.Providers
 {
+    public enum GeminiThinkingLevel
+    {
+        high, medium, low, minimal
+    }
+    
     public class GeminiProvider : ILmmProvider
     {
         public event Action<string> OnUpdate;
@@ -22,6 +27,9 @@ namespace RPG.AI.Providers
         private const string EmbeddingModel = "gemini-embedding-001";
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 
+        private int _sendTokens;
+        private int _receivedTokens;
+
         public GeminiProvider(string apiKey, string modelName)
         {
             _apiKey = apiKey;
@@ -30,13 +38,18 @@ namespace RPG.AI.Providers
             _httpClient.Timeout = TimeSpan.FromMinutes(10);
         }
 
+        public void PrintTokens()
+        {
+            OnUpdate.Invoke($"[ToolComplete] Tokens send {_sendTokens}. Tokens received {_receivedTokens} . Total {_sendTokens + _receivedTokens}");
+            _receivedTokens = 0;
+            _sendTokens = 0;
+        }
+
         public async Task<string> GenerateAsync(LmmRequest request)
         {
-            // NotifyUpdate("Sending request to Gemini...");
-
             var url = $"{BaseUrl}/{_modelName}:generateContent?key={_apiKey}";
             var jsonBody = BuildGeminiRequestBody(request);
-            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+            var content = new StringContent(jsonBody, Encoding.UTF8, request.Format);
 
             var response = await _httpClient.PostAsync(url, content);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -47,7 +60,6 @@ namespace RPG.AI.Providers
                 return null;
             }
 
-            // Модифицированная логика парсинга для получения токенов
             if (JsonUtils.TryDeserialize<GeminiResponseRoot>(responseString, out var root))
             {
                 ProcessUsageMetadata(root.UsageMetadata);
@@ -77,24 +89,22 @@ namespace RPG.AI.Providers
             using var reader = new StreamReader(stream);
 
             string line;
-            StringBuilder buffer = new StringBuilder();
+            var buffer = new StringBuilder();
 
             while ((line = await reader.ReadLineAsync()) != null)
             {
                 buffer.Append(line);
-                string currentBuffer = buffer.ToString().Trim();
+                var currentBuffer = buffer.ToString().Trim();
 
-                // Gemini stream отправляет массив JSON объектов, иногда разделенных запятыми
                 if (currentBuffer.StartsWith("{") && currentBuffer.EndsWith("}"))
                 {
-                    string cleanJson = currentBuffer.TrimStart('[').TrimEnd(']').TrimEnd(',');
+                    var cleanJson = currentBuffer.TrimStart('[').TrimEnd(']').TrimEnd(',');
 
                     if (JsonUtils.TryDeserialize<GeminiResponseRoot>(cleanJson, out var chunkObj))
                     {
-                        // Проверяем метаданные в каждом чанке (обычно приходят в последнем)
                         ProcessUsageMetadata(chunkObj.UsageMetadata);
 
-                        string textChunk = ExtractTextFromRoot(chunkObj);
+                        var textChunk = ExtractTextFromRoot(chunkObj);
                         if (!string.IsNullOrEmpty(textChunk))
                         {
                             yield return textChunk;
@@ -137,13 +147,13 @@ namespace RPG.AI.Providers
             return null;
         }
 
-        // --- Helpers ---
-
         private void ProcessUsageMetadata(UsageMetadata metadata)
         {
             if (metadata != null)
             {
-                string message = $"[System] Tokens send {metadata.PromptTokenCount}. Tokens received {metadata.CandidatesTokenCount} . Total {metadata.TotalTokenCount}";
+                _sendTokens += metadata.PromptTokenCount;
+                _receivedTokens += metadata.CandidatesTokenCount;
+                var message = $"[System] Tokens send {metadata.PromptTokenCount}. Tokens received {metadata.CandidatesTokenCount} . Total {metadata.TotalTokenCount}";
                 OnUpdate?.Invoke(message);
             }
         }
@@ -157,8 +167,9 @@ namespace RPG.AI.Providers
             {
                 foreach (var img in req.Images)
                 {
-                    byte[] pngBytes = img.SavePngToBuffer();
-                    string base64Data = Convert.ToBase64String(pngBytes);
+                    if (img == null) continue;
+                    var pngBytes = img.SavePngToBuffer();
+                    var base64Data = Convert.ToBase64String(pngBytes);
 
                     parts.Add(new
                     {
@@ -181,24 +192,19 @@ namespace RPG.AI.Providers
                 {
                     parts = new[] { new { text = req.SystemInstruction ?? "You are a helpful assistant." } }
                 },
+                
                 generationConfig = new
                 {
                     temperature = req.Temperature,
-                    responseMimeType = "application/json"
+                    responseMimeType = req.Format, 
+                    thinkingConfig = new
+                    {
+                        includeThoughts = false,
+                        thinkingLevel = req.ThinkingLevel.ToString()
+                    }
                 }
             };
             return JsonUtils.Serialize(geminiReq);
-        }
-
-        private string ParseGeminiResponse(string json)
-        {
-            if (JsonUtils.TryDeserialize<GeminiResponseRoot>(json, out var root))
-            {
-                ProcessUsageMetadata(root.UsageMetadata); // Также обрабатываем здесь на всякий случай
-                return ExtractTextFromRoot(root);
-            }
-
-            return null;
         }
 
         private string ExtractTextFromRoot(GeminiResponseRoot root)
@@ -208,10 +214,15 @@ namespace RPG.AI.Providers
                 var parts = root.Candidates[0].Content?.Parts;
                 if (parts != null && parts.Count > 0)
                 {
-                    return parts[0].Text;
+                    foreach (var part in parts)
+                    {
+                        if (!string.IsNullOrEmpty(part.Text))
+                        {
+                            return part.Text;
+                        }
+                    }
                 }
             }
-
             return "";
         }
 
@@ -261,7 +272,10 @@ namespace RPG.AI.Providers
 
         private class Part
         {
+            [JsonPropertyName("text")]
             public string Text { get; set; }
+            [JsonPropertyName("thought")]
+            public bool IsThought { get; set; }
         }
     }
 }
