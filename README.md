@@ -35,7 +35,7 @@ The core goal is to demonstrate how LLMs can handle logic, state management, and
 *   **Text-to-Visual Rendering:** The engine interprets the textual and JSON-based world state to render 2D visualizations (PNG) via the Godot engine, bridging the gap between raw data and visual feedback.
 
 ## 🛠️ Tech Stack & Concepts
-*   **Core Logic:** Python / LLM Integration
+*   **Core Logic:** С# / LLM Integration
 *   **UI & Visualization:** Godot Engine
 *   **AI Concepts:** RAG (Vector Search), Chain-of-Thought, Multi-Agent Orchestration.
 *   **Data Structure:** JSON, Hierarchical Indexing.
